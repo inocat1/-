@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英語學習中心</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+            margin: 0;
+        }
+        h1 { color: #2c3e50; margin-bottom: 30px; }
+        .menu-container {
+            display: grid;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .menu-btn {
+            display: block;
+            text-decoration: none;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        .menu-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+        .icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+        .title { font-size: 1.2rem; font-weight: bold; color: #333; display: block; }
+        .desc { font-size: 0.9rem; color: #666; margin-top: 5px; display: block; }
+    </style>
+</head>
+<body>
+
+    <h1>📚 英語學習中心</h1>
+
+    <div class="menu-container">
+        
+        <!-- 按鈕 1：連到 quiz.html (選擇題) -->
+        <a href="quiz.html" class="menu-btn">
+            <span class="icon">📝</span>
+            <span class="title">選擇題特訓</span>
+            <span class="desc">四選一測驗，含 1-9 回全範圍</span>
+        </a>
+
+        <!-- 按鈕 2：連到 review.html (你的另一個檔案) -->
+        <!-- 請確認你的檔案名稱真的是 review.html，如果不是請自行修改 -->
+        <a href="review.html" class="menu-btn">
+            <span class="icon">🗂️</span>
+            <span class="title">單字卡複習</span>
+            <span class="desc">翻卡記憶模式，加強背誦</span>
+        </a>
+
+    </div>
+
+</body>
+</html>
