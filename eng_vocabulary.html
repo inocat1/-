@@ -1,0 +1,2905 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英語單字混搭特訓</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f0f2f5;
+            --white: #ffffff;
+            --correct: #27ae60;
+            --wrong: #c0392b;
+            --text: #2c3e50;
+            --selected-bg: #ebf5fb;
+            --selected-border: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 80px; /* Space for bottom bar */
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 { margin: 0; font-size: 1.3rem; font-weight: 500; letter-spacing: 1px;}
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Menu Styles --- */
+        .control-panel {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: 1px solid #ccc;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        /* Checkbox hidden, style the label */
+        .unit-checkbox { display: none; }
+
+        .unit-label {
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid transparent;
+        }
+
+        .unit-checkbox:checked + .unit-label {
+            border-color: var(--selected-border);
+            background-color: var(--selected-bg);
+        }
+
+        .unit-checkbox:checked + .unit-label::after {
+            content: '✔';
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .badge {
+            background: #dfe6e9;
+            color: #636e72;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        /* Bottom Start Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--white);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99;
+        }
+
+        .start-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+            transition: transform 0.1s;
+        }
+        .start-btn:active { transform: scale(0.98); }
+        .start-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; box-shadow: none; }
+
+        /* --- Quiz Styles --- */
+        #quiz-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding-bottom: 20px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #dcdcdc;
+            border-radius: 5px;
+            height: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .question-box {
+            background: var(--white);
+            padding: 40px 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .q-word {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .q-pos {
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        .speak-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--accent);
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: var(--white);
+            border: 2px solid transparent;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #f8f9fa;
+            border-color: #bdc3c7;
+            transform: translateY(-1px);
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5;
+            color: #27ae60;
+            border-color: #27ae60;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #fdedec;
+            color: #c0392b;
+            border-color: #c0392b;
+            opacity: 0.8;
+        }
+
+        /* 答錯時顯示正確答案的樣式 */
+        .option-btn.show-correct {
+            border-color: #27ae60;
+            background-color: #e8f8f5;
+            position: relative;
+        }
+        .option-btn.show-correct::after {
+            content: '👈 正解';
+            position: absolute;
+            right: 15px;
+            color: #27ae60;
+            font-size: 0.9rem;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .next-btn {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: none; 
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* --- Result Styles --- */
+        #result-view {
+            display: none;
+            text-align: center;
+            padding-bottom: 20px;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 6px solid var(--accent);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .score-num { font-size: 2.5rem; font-weight: bold; color: var(--primary); }
+        .score-label { font-size: 0.9rem; color: #7f8c8d; }
+
+        .mistake-list {
+            text-align: left;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .mistake-header {
+            background-color: #ff7675;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+        }
+
+        .mistake-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+        .mistake-item:last-child { border-bottom: none; }
+        .m-row { display: flex; justify-content: space-between; align-items: baseline;}
+        .m-word { font-weight: bold; color: var(--text); font-size: 1.1rem; }
+        .m-pos { color: #7f8c8d; font-style: italic; font-size: 0.9rem; margin-left: 5px;}
+        .m-def { color: #e74c3c; margin-top: 5px; }
+
+        .btn-retry {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-home {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: 1px solid #bdc3c7;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>高中英單特訓 (選擇題)</h1>
+</header>
+
+<div class="container">
+    
+    <!-- MENU -->
+    <div id="menu-view">
+        <div class="control-panel">
+            <label style="font-size: 0.95rem; display: flex; align-items: center; gap:8px;">
+                <input type="checkbox" id="shuffle-check" checked style="transform: scale(1.3);"> 
+                題目順序隨機
+            </label>
+            <button class="toggle-btn" onclick="toggleSelectAll()">全選 / 清除</button>
+        </div>
+
+        <div class="menu-grid" id="menu-list">
+            <!-- Checkboxes will be injected here -->
+        </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz-view">
+        <div class="status-bar">
+            <span id="progress-text">1 / 10</span>
+            <span style="color:var(--correct)">Score: <span id="current-score">0</span></span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-fill" id="progress-bar"></div>
+        </div>
+
+        <div class="question-box">
+            <button class="speak-btn" onclick="speakCurrent()">🔊</button>
+            <span class="q-word" id="q-word">Vocabulary</span>
+            <span class="q-pos" id="q-pos">(n.)</span>
+        </div>
+
+        <div class="options-grid" id="options-container">
+            <!-- Options injected here -->
+        </div>
+
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">下一題 →</button>
+        <button class="btn-home" style="margin-top:30px;" onclick="confirmExit()">退出測驗</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result-view">
+        <h2>測驗完成！</h2>
+        <div class="score-circle">
+            <div class="score-num" id="final-score">100</div>
+            <div class="score-label">分</div>
+        </div>
+        
+        <div id="mistake-area" style="display:none;">
+            <div class="mistake-list">
+                <div class="mistake-header">需加強單字</div>
+                <div id="mistake-items"></div>
+            </div>
+        </div>
+
+        <button class="btn-retry" onclick="retryQuiz()">再測一次 (相同單字)</button>
+        <button class="btn-home" onclick="initMenu()">回到首頁選單</button>
+    </div>
+
+</div>
+
+<!-- Sticky Bottom Bar for Menu -->
+<div class="bottom-bar" id="start-bar">
+    <button class="start-btn" id="start-btn" onclick="startMixedQuiz()" disabled>
+        開始測驗 (0 字)
+    </button>
+</div>
+
+<script>
+// ================= DATASOURCE (完整整合) =================
+const rawData = `
+### 第九回 (1-5 冊)
+1. shelter 
+2. sufficiently (adv.) 充足地
+3. solidly (adv.) 堅固地
+4. slightly (adv.) 稍微
+5. temporarily (adv.) 暫時地
+6. jade (n.) 玉
+7. in advance (phr.) 提前
+8. conservation (n.) 保育；保存
+9. reservation (n.) 預訂
+10. association (n.) 協會；聯想
+11. refugee (n.) 難民
+12. recognition (n.) 認可；承認
+13. admission (n.) 允許進入；入場
+14. formation (n.) 形成
+15. gratefully (adv.) 感激地
+16. considerably (adv.) 相當地
+17. unconsciously (adv.) 無意識地
+18. conditionally (adv.) 有條件地
+19. arrest (v.) 逮捕
+20. abandon (v.) 拋棄
+21. abound (v.) 盛產; 富有
+22. amuse (v.) 使開心
+23. arrange (v.) 安排
+24. victim (n.) 受害者
+25. arrangement (n.) 安排；佈置
+26. appetite (n.) 食慾
+27. greasy (adj.) 油膩的
+28. attend (v.) 參加；出席
+29. incline (v.) 傾向於；使傾斜
+30. acquire (v.) 獲得
+31. retain (v.) 保留
+32. permit (v.) 允許
+33. acceptance (n.) 接受
+34. demonstrate (v.) 示範；展示
+35. demonstration (n.) 示威
+36. hurdle (n.) 障礙
+37. detention (n.) 拘留
+38. misfortune (n.) 不幸
+39. encounter (v.) 遭遇
+40. competitive (adj.) 競爭的
+41. sympathetic (adj.) 有同情心的
+42. adequate (adj.) 足夠的
+43. resistant (adj.) 抗拒的；有抵抗力的
+44. object (v.) 反對
+45. positive (adj.) 正面的；肯定的
+46. fortune (n.) 財富；運氣
+47. blacksmith (n.) 鐵匠
+48. iron (n.) 鐵
+49. heal (v.) 治癒
+50. give away (phr.) 贈送；洩漏
+51. put out (phr.) 撲滅
+52. linger on (phr.) 持續存在
+53. benefit (n.) 好處
+54. symbol (n.) 象徵
+55. feature (n.) 特徵；(v.) 以…為特色
+56. thread (n.) 線
+57. reside (v.) 居住
+58. absorb (v.) 吸收
+59. request (v.) 要求
+60. consist of (phr.) 由…組成
+61. be composed of (phr.) 由…構成
+62. exchange (v.) 交換
+63. ward off (phr.) 避開；防止
+64. give in (phr.) 屈服
+65. hang up (phr.) 掛斷電話
+66. lay (v.) 放置；鋪設
+67. mammal (n.) 哺乳動物
+68. fur (n.) 毛皮
+69. tail (n.) 尾巴
+70. beaver (n.) 海狸
+71. fake (adj.) 假的
+72. sue (v.) 起訴
+73. decline (v.) 下降；婉拒
+74. immediate (adj.) 立即的
+75. threat (n.) 威脅
+76. inquire (v.) 詢問
+77. detect (v.) 偵測
+78. reverse (v.) 反轉
+79. resort to (phr.) 訴諸於
+80. only if (conj.) 只有在…時
+81. alter (v.) 改變
+82. partial (adj.) 部分的
+83. process (n.) 過程
+84. force (n.) 力量
+85. liquid (n.) 液體
+86. temperature (n.) 溫度
+87. solid (n.) 固體
+88. cholesterol (n.) 膽固醇
+89. decrease (v.) 減少
+90. intake (n.) 攝取量
+91. amount (n.) 數量
+92. correlated (adj.) 相關的
+93. diabetes (n.) 糖尿病
+94. dysfunction (n.) 功能障礙
+95. adversely (adv.) 不利地
+96. recommend (v.) 建議
+97. replace (v.) 替換
+98. gain (v.) 獲得
+99. obstacle (n.) 障礙
+100. abandon (v.) 放棄
+101. characteristic (n.) 特徵
+102. contributor (n.) 貢獻者
+103. moderation (n.) 適度
+104. unknowingly (adv.) 無意識地
+105. critical (adj.) 關鍵的；危急的
+106. replicate (v.) 複製
+107. excessive (adj.) 過度的
+108. modify (v.) 修改
+109. as well (adv.) 也
+110. on a regular basis (phr.) 定期地
+111. used to (phr.) 過去習慣
+112. journalist (n.) 記者
+113. automation (n.) 自動化
+114. program (n.) 程式；計畫
+115. obvious (adj.) 明顯的
+116. employee (n.) 員工
+117. scale (n.) 規模；範圍
+118. broadcast (v.) 廣播
+119. wonder (v.) 想知道；驚奇
+120. introduction (n.) 介紹
+121. time-consuming (adj.) 耗時的
+122. allow (v.) 允許
+123. sophisticated (adj.) 精密的；複雜的
+124. complex (adj.) 複雜的
+125. opinion (n.) 意見
+126. investigative (adj.) 調查性的
+127. all in all (phr.) 總而言之
+128. properly (adv.) 適當地
+129. potential (adj.) 潛在的
+130. enrich (v.) 使豐富
+131. field (n.) 領域；田地
+132. degrade (v.) 降低；貶低
+133. sue (v.) 起訴
+134. figure (n.) 數字；人物
+135. financial (adj.) 財務的
+136. indeed (adv.) 的確
+137. fall victim to (phr.) 成為…的受害者
+138. profit (n.) 利潤
+139. logic (n.) 邏輯
+140. after all (phr.) 畢竟
+141. outperform (v.) 勝過
+142. article (n.) 文章；物品
+143. require (v.) 需要
+144. intelligence (n.) 智力；情報
+145. consist of (phr.) 由…組成
+146. vary (v.) 變化
+147. liter (n.) 公升
+148. respectively (adv.) 分別地
+149. fluid (n.) 液體
+150. account for (phr.) 說明；佔…比例
+151. approximately (adv.) 大約
+152. general (adj.) 一般的
+153. specific (adj.) 具體的
+154. factor (n.) 因素
+155. definitely (adv.) 明確地
+156. impact (n.) 影響
+157. spicy (adj.) 辣的
+158. frequently (adv.) 頻繁地
+159. panic (n.) 恐慌
+160. equivalent (adj.) 相等的
+161. quarter (n.) 四分之一
+162. dehydrated (adj.) 脫水的
+163. compensate (v.) 補償
+164. loss (n.) 損失
+165. crack (v.) 破裂
+166. urine (n.) 尿液
+167. sign (n.) 標誌；徵兆
+168. lack (n.) 缺乏
+169. illustrate (v.) 說明；舉例說明
+170. symptom (n.) 症狀
+171. consequence (n.) 結果
+172. consume (v.) 消耗
+173. element (n.) 元素
+174. pregnancy (n.) 懷孕
+175. glacier (n.) 冰河
+176. accumulate (v.) 累積
+177. outward (adj.) 向外的
+178. downward (adj.) 向下的
+179. occupy (v.) 佔據
+180. poll (n.) 民意調查
+181. exist (v.) 存在
+182. continent (n.) 大陸
+183. pacific (n.) 太平洋
+184. chain (n.) 連鎖；鏈
+185. region (n.) 地區
+186. melt (v.) 融化
+187. evaporate (v.) 蒸發
+188. prevail (v.) 盛行；獲勝
+189. ice sheet (n.) 冰蓋
+190. separate (v.) 分開
+191. period (n.) 期間
+192. due (adj.) 到期的
+193. resource (n.) 資源
+194. harness (v.) 控制
+195. stream (n.) 小溪；流
+196. irrigate (v.) 灌溉
+197. channel (v.) 導入; 引流
+198. tap into (phr.) 開發；利用
+199. electricity (n.) 電力
+200. generate (v.) 產生
+201. take up (phr.) 佔據；開始從事
+202. sufficient (adj.) 足夠的
+203. abundant (adj.) 豐富的
+204. pile up (phr.) 堆積
+205. postpone (v.) 延期
+206. cycle (n.) 循環
+207. identify (v.) 辨認
+208. component (n.) 組成
+209. therapy (n.) 治療
+210. allow (v.) 允許
+211. adopt (v.) 採用；收養
+212. is supposed to (phr.) 應該
+213. aloof (adj.) 冷漠的
+214. staff (n.) 職員
+215. predict (v.) 預測
+216. hypothesize (v.) 假設
+217. instead of (prep.) 而不是
+218. subsequently (adv.) 隨後
+219. confirm (v.) 確認
+220. plausible (adj.) 似合理的
+221. nerve (n.) 神經
+222. branch (n.) 分支
+223. receive (v.) 接收
+224. signal (n.) 信號
+225. transmit (v.) 傳送
+226. gap (n.) 差距；裂縫
+227. dramatically (adv.) 顯著地；戲劇性地
+228. brain (n.) 大腦
+229. development (n.) 發展
+230. puberty (n.) 青春期
+231. activate (v.) 啟動
+232. optimal (adj.) 最佳的
+233. instrument (n.) 工具; 樂器
+234. complex (adj.) 複雜的
+235. engaged in (phr.) 從事於
+236. cortex (n.) 皮層
+237. adolescent (n.) 青少年
+238. rational (adj.) 理性的
+239. abstract (adj.) 抽象的
+240. unpredictable (adj.) 無法預測的
+241. risk (n.) 風險
+242. behavior (n.) 行為
+243. hormone (n.) 荷爾蒙
+244. benefit (n.) 好處
+245. intelligent (adj.) 智能的；聰明的
+246. simultaneously (adv.) 同時地
+
+### 第一回 (1-5 冊)
+1. sentence (n.) 句子; 判刑
+2. previous (adj.) 先前的
+3. motivate (v.) 激勵
+4. dispense (v.) 分配；發放
+5. context (n.) 語境；背景
+6. refresh (v.) 使清新；更新
+7. tattoo (n.) 刺青
+8. elaborate (v.) 詳細說明
+9. invisible (adj.) 看不見的
+10. solemn (adj.) 莊嚴的；嚴肅的
+11. fragrant (adj.) 芬芳的
+12. abstract (adj.) 抽象的
+13. artificial (adj.) 人工的；人造的
+14. effective (adj.) 有效的
+15. abundant (adj.) 豐富的；大量的
+16. accidentally (adv.) 意外地；偶然地
+17. insult (v.) 侮辱
+18. abused (adj.) 受虐的；被濫用的
+19. swiftly (adv.) 迅速地
+20. loose (adj.) 鬆的
+21. verbally (adv.) 口頭地
+22. gracefully (adv.) 優雅地
+23. force (v./n.) 強迫；力量
+24. prompt (v.) 促使
+25. refusal (n.) 拒絕
+26. proposal (n.) 提議
+27. adventure (n.) 冒險
+28. exposure (n.) 暴露；接觸
+29. advance (n./v.) 前進；進展
+30. assisted (adj.) 協助的
+31. reproduction (n.) 繁殖；複製
+32. rhino (n.) 犀牛
+33. not necessarily (adv. phr.) 不必然地
+34. shortage (n.) 短缺
+35. extinction (n.) 絕種
+36. intuition (n.) 直覺
+37. milestone (n.) 里程碑
+38. prompt (adj.) 迅速的；即時的
+39. suicide (n.) 自殺
+40. bombing (n.) 轟炸；爆炸事件
+41. trigger (v.) 觸發；引起
+42. collective (adj.) 集體的
+43. injustice (n.) 不公義；不公平
+44. liberty (n.) 自由
+45. revenge (n.) 復仇
+46. landslide (n.) 土石流；壓倒性勝利
+47. welfare (n.) 福利
+48. accuse (v.) 指控
+49. arrest (v.) 逮捕
+50. access (n.) 進入；使用權
+51. cultivate (v.) 培養；耕種
+52. summon (v.) 召喚；傳喚
+53. obtain (v.) 獲得
+54. specific (adj.) 具體的；特定的
+55. venue (n.) 場地
+56. norm (n.) 規範
+57. intense (adj.) 強烈的
+58. crucial (adj.) 關鍵的
+59. isolated (adj.) 孤立的
+60. prior (adj.) 先前的；優先的
+61. chilly (adj.) 寒冷的；冷颼颼的
+62. pedestrian (n.) 行人
+63. sprain (v./n.) 扭傷
+64. tuck (v.) 塞進；摺疊
+65. twist (v.) 扭轉；扭傷
+66. extend (v.) 延伸；延長
+67. consciously (adv.) 有意識地
+68. unconsciously (adv.) 無意識地
+69. on a daily basis (adv. phr.) 每天；日常地
+70. entry (n.) 進入；入口
+71. beyond (prep.) 超過；超出
+72. blogger (n.) 部落客
+73. secure (v.) 保護；使安全
+74. versatile (adj.) 多才多藝的；多功能的
+75. jackpot (n.) 頭獎
+76. term (n.) 術語；期間
+77. constantly (adv.) 不斷地；持續地
+78. appointment (n.) 約會；預約
+79. take the raincheck (idiom) 改天；延期
+80. estimate (v.) 估計
+81. native (adj.) 本地的；土生的
+82. stun (v.) 使震驚；使目瞪口呆
+83. tip (n.) 小費
+84. progress (n./v.) 進步；進展
+85. disguise (v./n.) 偽裝
+86. structure (n.) 結構
+87. therefore (adv.) 因此
+88. instead (adv.) 取代；反而
+89. indeed (adv.) 的確；確實
+90. routine (n.) 例行事務；慣例
+91. conversation (n.) 對話
+92. customary (adj.) 習慣的；慣常的
+93. ordinary (adj.) 普通的；一般的
+94. arrange (v.) 安排
+95. aristocrat (n.) 貴族
+96. fascinate (v.) 使著迷
+97. revive (v.) 使復甦
+98. represent (v.) 代表
+99. cooperation (n.) 合作
+100. honor (n./v.) 榮譽；尊敬
+101. fairness (n.) 公平
+102. moral (adj./n.) 道德
+103. standard (n.) 標準
+104. lecture (n.) 演講；講座
+105. conference (n.) 會議
+106. committee (n.) 委員會
+107. set up (v.) 建立；設立
+108. athlete (n.) 運動員
+109. spectator (n.) 觀眾
+110. parade (n.) 遊行
+111. consequence (n.) 結果；後果
+112. discipline (n./v.) 紀律；訓練
+113. ideal (adj.) 理想的
+114. profit (n./v.) 利潤；獲利
+115. occur (v.) 發生
+116. take place (phr.) 發生；舉行
+117. participate (v.) 參與
+118. take part in (phr.) 參加；參與
+119. freak out (phr.) 崩潰；嚇壞
+120. pursue (v.) 追求；追趕
+121. escape (v.) 逃脫；逃離
+122. sweat (v./n.) 流汗
+123. nightmare (n.) 惡夢
+124. typical (adj.) 典型的
+125. threat (n.) 威脅
+126. injury (n.) 傷害
+127. destruction (n.) 破壞
+128. military (adj.) 軍事的
+129. innocent (adj.) 無辜的；清白的
+130. terror (n.) 恐怖；驚駭
+131. reason (n.) 理由；原因
+132. sign (n.) 記號；跡象
+133. startle (v.) 驚嚇；使嚇一跳
+134. clinical (adj.) 臨床的
+135. mere (adj.) 只是；僅僅
+136. severe (adj.) 嚴重的
+137. implication (n.) 影響；暗示
+138. chronic (adj.) 慢性的
+139. mental (adj.) 心理的；精神的
+140. physical (adj.) 身體的；物理的
+141. depression (n.) 憂鬱；沮喪
+142. improvement (n.) 改善；進步
+143. suicide (n.) 自殺
+144. disorder (n.) 失調；紊亂
+145. get rid of (phr.) 擺脫
+146. distinguish (v.) 區分；辨別
+147. traumatic (adj.) 創傷的
+148. actively (adv.) 積極地
+149. nearly (adv.) 幾乎
+150. relieve (v.) 緩解；減輕
+151. scenario (n.) 情節；可能發生的情況
+152. frequent (adj.) 頻繁的
+153. feature (n.) 特徵；特色
+154. range (n.) 範圍
+155. volcano (n.) 火山
+156. blast (n./v.) 爆炸
+157. ash (n.) 灰；火山灰
+158. crater (n.) 火山口；坑洞
+159. blanket (v.) 覆蓋
+160. beforehand (adv.) 事先；預先
+161. advanced (adj.) 先進的；高級的
+162. endeavor (n./v.) 努力；嘗試
+163. specify (v.) 明確指出；詳述
+164. potential (n./adj.) 潛力；可能性
+165. toll (n.) 損害；傷亡人數
+166. swell (v.) 腫脹；增大
+167. emission (n.) 排放；散發
+168. evacuate (v.) 撤離；疏散
+169. tragedy (n.) 悲劇；災難
+170. seize (v.) 抓住；奪取
+171. detect (v.) 偵測；察覺
+172. evident (adj.) 明顯的；清楚的
+173. indicate (v.) 表明；指出
+174. forecast (v./n.) 預測；預報
+175. inspire (v.) 激勵；啟發
+176. thriller (n.) 驚悚片；懸疑作品
+177. crime (n.) 犯罪
+178. horrible (adj.) 可怕的
+179. alibi (n.) 不在場證明
+180. what if (phr.) 如果…會怎樣
+181. league (n.) 聯盟；聯賽
+182. is accused of (phr.) 被控…
+183. witness (n.) 目擊者
+184. publish (v.) 出版；發表
+185. on purpose (phr.) 故意地
+186. float (v.) 漂浮
+187. tendency (n.) 傾向
+188. imitate (v.) 模仿
+189. intriguing (adj.) 引人入勝的
+190. observant (adj.) 善於觀察的
+191. mysterious (adj.) 神秘的
+192. similarity (n.) 相似；類似
+193. personalize (v.) 個人化；客製化
+194. alert (adj./v.) 警覺的；提醒
+195. contrast (n./v.) 對比；差異
+196. interview (n./v.) 面試；訪問
+197. recurrence (n.) 再發；復發
+198. plague (n./v.) 瘟疫；使困擾
+199. sweep (v.) 橫掃；席捲
+200. continent (n.) 大陸；洲
+201. as well as (phr.) 以及；也
+202. wipe out (v.) 消滅；徹底摧毀
+203. other than (phr.) 除了…之外
+204. physician (n.) 醫師
+205. costume (n.) 服裝；戲服
+206. sinister (adj.) 不祥的；邪惡的
+207. overtone (n.) 弦外之音；暗示
+208. outbreak (n.) 爆發
+209. grip (v./n.) 緊抓；掌控
+210. epidemic (n.) 流行病
+211. prescribe (v.) 開處方
+212. potion (n.) 藥水
+213. restorative (adj./n.) 有恢復作用的
+214. endless (adj.) 無止盡的
+215. rarely (adv.) 很少地
+216. awful (adj.) 可怕的；糟糕的
+217. rot (v./n.) 腐爛
+218. mess (n.) 混亂；凌亂
+219. swollen (adj.) 腫脹的
+220. symptom (n.) 症狀
+221. principle (n.) 原則
+222. perfume (n.) 香水
+223. examine (v.) 檢查；檢驗
+224. in particular (phr.) 尤其；特別
+225. sufficient (adj.) 足夠的
+226. bacteria (n.) 細菌
+227. countless (adj.) 無數的
+228. require (v.) 需要
+229. limb (n.) 肢體；四肢
+230. lethal (adj.) 致命的
+231. miracle (n.) 奇蹟
+232. varying (adj.) 多變的；不一樣的
+233. stage (n.) 階段；舞台
+234. obvious (adj.) 明顯的
+235. disallow (v.) 不允許
+236. goal (n.) 目標；得分
+237. deny (v.) 否認；拒絕
+238. penalty (n.) 處罰；罰球
+239. identity (n.) 身分
+240. referee (n.) 裁判
+241. discipline (n./v.) 紀律；訓練
+242. advocate (v./n.) 提倡；擁護者
+243. opinion (n.) 意見；看法
+244. grand (adj.) 雄偉的；盛大的
+245. premier (adj.) 最重要的；首要的
+246. convince (v.) 說服；使信服
+247. forward (n./adv.) 前鋒；向前的
+248. project (n.) 計畫；專案
+249. rush (v./n.) 衝；急忙
+250. ruin (v./n.) 毀壞；破壞
+251. error (n.) 錯誤
+252. interrupt (v.) 打斷；中斷
+253. flow (n./v.) 流動；流暢
+254. correct (adj./v.) 正確的；改正
+255. direction (n.) 方向；指示
+256. relieve (v.) 緩解；減輕
+257. replace (v.) 替換；取代
+258. judge (n./v.) 法官；評判
+259. ensure (v.) 確保
+260. fair (adj.) 公平的；美好的
+261. launch (v.) 發表；發射；啟動
+262. prove (v.) 證明
+263. clarify (v.) 釐清；澄清
+264. expect (v.) 期望；預期
+265. opponent (n.) 對手；反對者
+266. attitude (n.) 態度；看法
+267. conservative (adj.) 保守的
+268. neutral (adj.) 中立的
+269. engineering (n.) 工程學
+270. marvel (v./n.) 驚嘆；令人驚奇的事物
+271. nuclear (adj.) 核能的
+272. function (n./v.) 功能；作用
+273. carbon (n.) 碳
+274. owing to (phr.) 由於；因為
+275. compound (n./adj.) 化合物；複合的
+276. organic (adj.) 有機的
+277. trace (n./v.) 微量；追蹤
+278. conclusive (adj.) 決定性的；確鑿的
+279. data (n.) 資料；數據
+280. molecules (n.) 分子
+281. sniff (v./n.) 嗅；吸氣
+282. puzzle (v./n.) 使困惑；謎題
+283. unless (conj.) 除非
+284. origin (n.) 起源；來源
+285. chemical (adj./n.) 化學的；化學物質
+286. exclude (v.) 排除；不包括
+287. firm (n./adj.) 堅定的
+288. soil (n.) 土壤
+289. sample (n./v.) 樣本；取樣
+290. analyze (v.) 分析
+291. brochure (n.) 小冊子
+292. encyclopedia (n.) 百科全書
+293. current (adj./n.) 目前的；水流
+
+### 第八回 (1-5冊 111 北模)
+1. frequently (adv.) 頻繁地
+2. obesity (n.) 肥胖
+3. disease (n.) 疾病
+4. justify (v.) 證明…正當
+5. manifest (v.) 表明；顯示
+6. indulge (v.) 放縱；沉迷
+7. devote (v.) 奉獻
+8. socially (adv.) 社會地
+9. unacceptable (adj.) 無法接受的
+10. legally (adv.) 合法地
+11. criminal (adj.) 犯罪的
+12. melancholy (n.) 憂鬱
+13. affection (n.) 喜愛；感情
+14. correspondence (n.) 通信
+15. mischief (n.) 惡作劇；搗蛋
+16. infection (n.) 感染
+17. steadily (adv.) 穩定地
+18. decline (v.) 下降；減少
+19. vaccination (n.) 疫苗接種
+20. official (adj.) 官方的
+21. cautiously (adv.) 謹慎地
+22. bolder (adj.) 更大膽的
+23. distinguish (v.) 辨別
+24. peculiar (adj.) 奇特的
+25. faithful (adj.) 忠實的
+26. optimistic (adj.) 樂觀的
+27. decade (n.) 十年
+28. ravage (v.) 蹂躪；破壞
+29. tragedy (n.) 悲劇
+30. survivor (n.) 倖存者
+31. linger (v.) 逗留
+32. deposit (n.) 存款；押金
+33. abound (v.) 充滿；大量存在
+34. rejoice (v.) 歡喜
+35. consider (v.) 考慮
+36. critical (adj.) 重要的；關鍵的
+37. commercial (adj.) 商業的
+38. instinct (n.) 本能
+39. acclaim (v.) 讚譽
+40. discipline (n.) 紀律
+41. compromise (v.) 妥協
+42. alien (n.) 外星人；外國人
+43. apply for (v.) 申請
+44. citizenship (n.) 公民身分
+45. permanent (adj.) 永久的
+46. residency (n.) 居住；住所
+47. exclusive (adj.) 獨有的；專屬的
+48. competent (adj.) 有能力的
+49. destined (adj.) 註定的
+50. eligible (adj.) 有資格的
+51. multinational (adj.) 跨國的
+52. corporation (n.) 公司；企業
+53. obtain (v.) 獲得
+54. wholesale (adj.) 批發的
+55. license (n.) 執照
+56. beverage (n.) 飲料
+57. escort (v.) 護送
+58. distribute (v.) 分發；配送
+59. auction (n.) 拍賣
+60. scramble (v.) 搶奪；爭奪
+61. construction (n.) 建設
+62. arena (n.) 場地；競技場
+63. capacity (n.) 容量
+64. skyscraper (n.) 摩天大樓
+65. cluster (n.) 群；簇
+66. vacancy (n.) 空位；空缺
+67. investigation (n.) 調查
+68. parallel (adj.) 平行的
+69. striking (adj.) 驚人的
+70. ragged (adj.) 破爛的
+71. lucrative (adj.) 賺錢的
+72. hoarse (adj.) 沙啞的
+73. urban (adj.) 都市的
+74. leave much to be desired (phr.) 有很大改善空間
+75. steeply (adv.) 急遽地
+76. frantically (adv.) 瘋狂地；緊張忙亂地
+77. bluntly (adv.) 直言不諱地
+78. lavishly (adv.) 奢華地
+79. improve (v.) 改善
+80. production (n.) 生產
+81. tropical (adj.) 熱帶的
+82. climate (n.) 氣候
+83. reproduce (v.) 繁殖
+84. hive (n.) 蜂巢
+85. calm (a.) 使..冷靜
+86. defensive (adj.) 防禦性的
+87. alarm (n.) 警報
+88. collect (v.) 收集
+89. nectar (n.) 花蜜
+90. store (v.) 儲存
+91. stick (v.) 黏住
+92. stuff (v.) 塞滿；填滿
+93. starve (v.) 挨餓
+94. staff (n.) 職員
+95. set off (phr.) 出發；引發
+96. go off (phr.) （警報）響起
+97. call off (phr.) 取消
+98. knock off (phr.) 收工；停止
+99. dual (adj.) 雙重的
+100. steamy (adj.) 蒸氣瀰漫的
+101. crisp (adj.) 酥脆的
+102. few (adj.) 很少的
+103. chore (n.) 家務
+104. pay off (phr.) 得到回報
+105. unexpected (adj.) 出乎意料的
+106. publish (v.) 發表；出版
+107. journal (n.) 期刊；日記
+108. instead of (prep.) 而不是
+109. prevent (v.) 預防
+110. allergy (n.) 過敏
+111. conduct (v.) 進行
+112. survey (n.) 調查
+113. indicate (v.) 指出
+114. germ (n.) 細菌
+115. explanation (n.) 解釋
+116. hygiene (n.) 衛生
+117. hypothesis (n.) 假設
+118. immune (adj.) 免疫的
+119. recognize (v.) 認出；辨識
+120. bacteria (n.) 細菌
+121. virus (n.) 病毒
+122. overreact (v.) 反應過度
+123. ordinary (adj.) 普通的
+124. stimulate (v.) 刺激
+125. prevent from (phr.) 阻止…
+126. occur (v.) 發生
+127. manually (adv.) 手動地
+128. verbally (adv.) 口頭地
+129. supposedly (adv.) 據說
+130. implicitly (adv.) 含蓄地
+131. regardless of (prep.) 不管；無論
+132. in return for (phr.) 交換；作為回報
+133. be exposed to (phr.) 暴露於
+134. tolerate (v.) 容忍
+135. undermine (v.) 破壞；削弱
+136. graze (v.) 擦傷；放牧
+137. clarify (v.) 澄清
+138. iron (n.) 鐵
+139. overcome (v.) 克服
+140. adversity (n.) 逆境
+141. distance (v.) 疏遠；拉開距離
+142. take charge of (phr.) 負責…
+143. career (n.) 職涯
+144. remain (v.) 保持；仍然是
+145. inspiration (n.) 靈感
+146. athlete (n.) 運動員
+147. sheer (adj.) 完全的；十足的
+148. struck (v.) 打擊；撞擊
+149. reputation (n.) 名聲
+150. cripple (v.) 使癱瘓；削弱
+151. art (n.) 藝術
+152. persistence (n.) 堅持
+153. distress (n.) 痛苦；困境
+154. peak (n.) 頂峰
+155. secure (v.) 獲得; 使.. 穩固
+156. dreadful (adj.) 可怕的
+157. fascinate (v.) 使著迷
+158. destination (n.) 目的地
+159. legend has it (phr.) 傳說…
+160. tribe (n.) 部落
+161. heritage (n.) 遺產
+162. devastating (adj.) 毀滅性的
+163. force (n.) 力量
+164. resident (n.) 居民
+165. flee (v.) 逃離
+166. glory (n.) 光榮
+167. centerpiece (n.) 最重要的部分
+168. magnificent (adj.) 壯麗的
+169. boast (v.) 以…自豪
+170. unsurpassed (adj.) 無與倫比的
+171. luxury (n.) 奢華
+172. overlook (v.) 俯瞰；忽略
+173. hectare (n.) 公頃
+174. jungle (n.) 叢林
+175. adventure (n.) 冒險
+176. hub (n.) 中心
+177. feature (v.) 以…為特色
+178. adrenaline (n.) 腎上腺素
+179. induce (v.) 引起
+180. sustain (v.) 支撐；維持
+181. safari (n.) 野生動物旅行
+182. explore (v.) 探索
+183. stretch (v.) 延伸
+184. assist (v.) 協助
+185. splendid (adj.) 壯麗的；極好的
+186. unique (adj.) 獨特的
+187. device (n.) 裝置
+188. by means of (phr.) 藉由
+189. mount (v.) 安裝；固定
+190. rotate (v.) 旋轉
+191. waterwheel (n.) 水車
+192. prime (adj.) 主要的
+193. replace (v.) 替換
+194. source (n.) 來源
+195. grind (v.) 研磨
+196. grain (n.) 穀物
+197. certain (adj.) 某些；確定的
+198. drainage (n.) 排水系統
+199. pump (n.) 幫浦
+200. equally (adv.) 同樣地
+201. originates (v.) 起源（於）
+202. radiate (v.) 散發；輻射
+203. vertical (adj.) 垂直的
+204. axis (n.) 軸
+205. direct (v.) 指向；引導
+206. gear (n.) 齒輪
+207. take by the force (phr.) 用力取走
+208. instruct (v.) 指示；教導
+209. irrigation (n.) 灌溉
+210. horizontal (adj.) 水平的
+211. angle (n.) 角度
+212. attach (v.) 附著；連接
+213. wooden (adj.) 木製的
+214. tower (n.) 塔
+215. consist of (v.) 由…組成
+216. top (n.) 頂部
+217. house (v.) 容納
+218. brick (n.) 磚
+219. weatherproof (adj.) 防風雨的
+220. decline (v.) 下降
+221. the former (phr.) 前者
+222. the latter (phr.) 後者
+223. operate (v.) 操作
+224. be credited to (phr.) 歸功於
+225. indispensable (adj.) 不可或缺的
+226. spare (v.) 騰出；省下
+227. startup (n.) 新創公司
+228. measure (v.) 測量
+229. length (n.) 長度
+230. width (n.) 寬度
+231. virtually (adv.) 幾乎；虛擬地
+232. sturdy (adj.) 堅固的
+233. fiber (n.) 纖維
+234. substance (n.) 物質
+235. liquid (n.) 液體
+236. solid (n.) 固體
+237. odor (n.) 氣味
+238. founder (n.) 創辦人
+239. portable (adj.) 可攜帶的
+240. spot (n.) 地點
+241. mobile (adj.) 行動的
+242. non-profit (adj.) 非營利的
+243. in contrast to (phr.) 與…相反
+244. supply (v.) 供應
+245. emergency (n.) 緊急情況
+246. kit (n.) 裝備組
+247. evasion (n.) 逃避
+248. script (n.) 劇本
+249. review (v.) 評論；檢視
+250. benefit (n.) 益處
+251. outfit (n.) 裝備；套裝
+252. rescue (v.) 救援
+253. in handy (phr.) 派上用場
+254. urge (v.) 催促；力勸
+255. urinate (v.) 小便
+256. durable (adj.) 耐用的
+257. mammal (n.) 哺乳類
+258. fossil (n.) 化石
+259. shed light on (phr.) 解釋; 使更清楚
+260. diversity (n.) 多樣性
+261. drastically (adv.) 急遽地
+262. mount (v.) 登上；安裝
+263. strengthen (v.) 強化
+264. ample (adj.) 充足的
+265. gather (v.) 收集
+266. restriction (n.) 限制
+267. hotspot (n.) 熱點；熱門地區
+268. microscope (n.) 顯微鏡
+269. extent (n.) 程度
+270. plague (n.) 瘟疫；災害
+271. dwell (v.) 居住
+272. trap (v.) 使陷入; 困住
+273. trophy (n.) 戰利品；獎盃
+274. represent (v.) 代表
+275. sculptor (n.) 雕刻家
+276. vice (n.) 惡行
+277. troop (n.) 部隊
+278. permanent (adj.) 永久的
+279. possession (n.) 所有物
+280. duplicate (v.) 複製
+281. layer (n.) 層
+282. remain (v.) 保持；留下
+283. bronze (n.) 青銅
+284. carve (v.) 雕刻
+
+### 第四回 (1-5冊)
+1. ancient (adj.) 古老的
+2. democratic (adj.) 民主的
+3. target (n./v.) 目標；以…為目標
+4. cradle (n.) 搖籃; 發源地
+5. milestone (n.) 里程碑
+6. sober (adj.) 清醒的；冷靜的
+7. highlight (v./n.) 強調；亮點
+8. majestic (adj.) 宏偉的
+9. vigorous (adj.) 有活力的
+10. noticeable (adj.) 明顯的
+11. claim (v./n.) 聲稱；要求
+12. convention (n.) 大會；慣例
+13. insurance (n.) 保險
+14. ownership (n.) 所有權
+15. surround (v.) 圍繞
+16. balloon (n.) 氣球
+17. scoop (n./v.) 勺子；舀
+18. flip (v.) 翻轉
+19. chirp (v./n.) 鳥叫；啁啾
+20. generation (n.) 世代
+21. construction (n.) 建造
+22. casual (adj.) 隨便的；休閒的
+23. durable (adj.) 耐用的
+24. manual (adj.) 手動的
+25. violent (adj.) 暴力的
+26. stumble (v.) 絆倒
+27. graze (v./n.) 擦傷；放牧
+28. navigate (v.) 導航
+29. dwell (v.) 居住
+30. angle (n.) 角度
+31. margin (n.) 邊緣；利潤
+32. exception (n.) 例外
+33. limitation (n.) 限制
+34. stretch (v./n.) 伸展
+35. constitution (n.) 憲法
+36. objection (n.) 反對
+37. sculpture (n.) 雕刻、雕像
+38. adventure (n.) 冒險
+39. apply (v.) 申請；塗抹
+40. lotion (n.) 乳液
+41. alert (adj./v.) 警覺的；提醒
+42. itchy (adj.) 發癢的
+43. steady (adj.) 穩定的
+44. flexible (adj.) 有彈性的；靈活的
+45. broaden (v.) 拓寬
+46. loosen (v.) 放鬆；鬆開
+47. urban (adj.) 城市的
+48. transportation (n.) 交通運輸
+49. available (adj.) 可獲得的
+50. roam (v.) 漫遊
+51. orchard (n.) 果園
+52. spectacular (adj.) 壯觀的
+53. ideal (adj.) 理想的
+54. fantastic (adj.) 極好的
+55. formally (adv.) 正式地
+56. densely (adv.) 密集地
+57. loosely (adv.) 鬆散地
+58. latterly (adv.) 最近；後期
+59. prosperous (adj.) 繁榮的
+60. alternate (adj./v.) 交替的；輪流
+61. flawless (adj.) 完美無瑕的
+62. remote (adj.) 遙遠的；偏遠的
+63. whether or not (conj.) 是否
+64. for fear that (conj.) 以免
+65. as long as (conj.) 只要
+66. owing to (prep.) 由於
+67. in contrast to (prep.) 與…相反
+68. relevant to (adj.) 與…相關
+69. in spite of (prep.) 儘管
+70. board (n./v.) 板子；登上（交通工具）
+71. market (n./v.) 市場；行銷
+72. alphabet (n.) 字母表
+73. upper (adj.) 上方的
+74. device (n.) 裝置
+75. supposedly (adv.) 據說
+76. briefly (adv.) 簡短地
+77. certain (adj.) 某些；確定的
+78. prediction (n.) 預測
+79. original (adj.) 原始的；原創的
+80. refer to as (v.) 稱作
+81. associate (v.) 聯想；結交
+82. devil (n.) 魔鬼
+83. demonstrate (v.) 示範；證明
+84. lack (v./n.) 缺乏
+85. education (n.) 教育
+86. common sense (n.) 常識
+87. maintain (v.) 維持
+88. regulate (v.) 管理；調節
+89. alter (v.) 改變
+90. postpone (v.) 延期
+91. seize (v.) 抓住；奪取
+92. far from (prep.) 遠離；完全不是
+93. on account of (prep.) 因為
+94. in consequence of (prep.) 因…的結果
+95. collapse (v./n.) 崩塌
+96. consult (v.) 諮詢
+97. prosper (v.) 繁榮
+98. recite (v.) 背誦
+99. mock (v./adj.) 嘲笑；模擬的
+100. sparkle (v.) 閃耀
+101. peer (v./n.) 凝視；同儕
+102. twist (v./n.) 扭曲
+103. minimum (n./adj.) 最小值；最小的
+104. publish (v.) 出版
+105. on the loose (phr.) 四處遊蕩；失控
+106. solid (adj.) 固體的；堅固的
+107. genetic (adj.) 基因的
+108. primitive (adj.) 原始的
+109. ape (n.) 猿
+110. average (adj./n.) 平均的；平均
+111. beast (n.) 野獸
+112. region (n.) 地區
+113. deserve (v.) 應得
+114. normal (adj.) 正常的
+115. defend (v.) 防禦
+116. community (n.) 社區
+117. evidence (n.) 證據
+118. exist (v.) 存在
+119. multiple (adj.) 多重的
+120. vision (n.) 視力；願景
+121. fake (adj./n.) 假的；假貨
+122. confuse (v.) 使困惑
+123. freak (n./adj.) 怪人；反常的
+124. arouse (v.) 激起
+125. conference (n.) 會議
+126. establish (v.) 建立
+127. experiment (n./v.) 實驗
+128. frequency (n.) 頻率
+129. publication (n.) 出版物
+130. compose (v.) 組成；作曲
+131. material (n.) 材料
+132. finalize (v.) 完成定稿
+133. be intended to (phr.) 旨在
+134. remain (v.) 保持；剩下
+135. field (n.) 領域
+136. affect (v.) 影響
+137. decade (n.) 十年
+138. participant (n.) 參與者
+139. gather (v.) 收集；聚集
+140. standard (n./adj.) 標準
+141. temporary (adj.) 暫時的
+142. interrupt (v.) 打斷
+143. upset (v./adj.) 使心煩；難過的
+144. a series of (phr.) 一連串
+145. title (n.) 標題
+146. as well as (phr.) 以及
+147. a set of (phr.) 一套
+148. accompany (v.) 陪伴
+149. selection (n.) 選擇
+150. vocabulary (n.) 字彙
+151. rely on (v.) 依靠
+152. anniversary (n.) 週年紀念
+153. update (v./n.) 更新
+154. version (n.) 版本
+155. greet (v.) 問候
+156. commonplace (adj./n.) 普遍的；尋常事物
+157. aware (adj.) 意識到的
+158. unique (adj.) 獨特的
+159. prevent (v.) 預防
+160. error (n.) 錯誤
+161. familiar (adj.) 熟悉的
+162. handshake (n.) 握手
+163. prefer (v.) 偏好
+164. perform (v.) 表演；執行
+165. press (v.) 按壓
+166. pray (v.) 祈禱
+167. slight (adj.) 輕微的
+168. bow (v./n.) 鞠躬；弓
+169. identical (adj.) 完全相同的
+170. adoration (n.) 崇拜
+171. gesture (n./v.) 手勢；比手勢
+172. greeter (n.) 接待員
+173. involve (v.) 涉及
+174. physical (adj.) 身體的；物理的
+175. clap (v.) 拍手
+176. stick out (v.) 伸出；突出
+177. foreign (adj.) 外國的
+178. basics (n.) 基本知識
+179. offensive (adj.) 冒犯的
+180. disaster (n.) 災難
+181. gain (v./n.) 獲得
+182. severity (n.) 嚴重性
+183. relatively (adv.) 相對地
+184. hurricane (n.) 颶風
+185. tornado (n.) 龍捲風
+186. landslide (n.) 山崩
+187. flood (n./v.) 洪水；淹沒
+188. drought (n.) 乾旱
+189. proof (n.) 證據
+190. priority (n.) 優先事項
+191. issue (n./v.) 問題；發布
+192. occur (v.) 發生
+193. vital (adj.) 重要的
+194. adequate (adj.) 充足的
+195. canned (adj.) 罐頭的
+196. freezer (n.) 冷凍庫
+197. essential (adj./n.) 必要的；必需品
+198. outrage (n./v.) 暴行；激怒
+199. maintain (v.) 維持
+200. initial (adj.) 最初的
+201. urgent (adj.) 緊急的
+202. supply (n./v.) 補給；供應
+203. on-site (adj./adv.) 現場的；在現場
+204. electricity (n.) 電力
+205. blessing (n.) 祝福
+206. prove (v.) 證明
+207. blanket (n.) 毯子
+208. battery (n.) 電池
+209. first aid (n.) 急救
+210. assist (v.) 協助
+211. property (n.) 財產
+212. strike (v./n.) 罷工；擊打
+213. bond (n./v.) 連結；建立關係
+214. resident (n.) 居民
+215. primary (adj.) 主要的
+216. fail to (v.) 未能
+217. outline (v./n.) 概述；大綱
+218. survive (v.) 生存
+219. aftermath (n.) 後果
+220. item (n.) 項目
+221. respond (v.) 回應
+222. shelter (n./v.) 庇護；避難
+223. relieve (v.) 緩和
+224. compete (v.) 競爭
+225. prominent (adj.) 顯著的
+226. fierce (adj.) 激烈的
+227. competitor (n.) 競爭者
+228. debate (n./v.) 辯論
+229. immigrant (n.) 移民
+230. exception (n.) 例外
+231. layer (n.) 層
+232. source (n.) 來源
+233. top (v.) 蓋在上面
+234. serving (n.) 一份（食物）
+235. triangular (adj.) 三角形的
+236. grab (v.) 抓取
+237. on the run (phr.) 逃亡中；奔波中
+238. varied (adj.) 多樣化的
+239. square (n./adj.) 正方形；平方的
+240. consume (v.) 消耗
+241. defend (v.) 防禦
+242. worth (adj./n./prep.) 值得；價值
+243. operation (n.) 手術；運作
+244. program (n.) 節目；程序
+245. assistance (n.) 協助
+246. purchase (v./n.) 購買
+247. companion (n.) 夥伴
+248. organic (adj.) 有機的
+249. entire (adj.) 整體的
+250. state (n./v.) 狀態；陳述
+251. import (v./n.) 進口
+252. harvest (v./n.) 收成
+253. quality (n./adj.) 品質；高品質的
+254. retire (v.) 退休
+255. capable of (adj.) 有能力的
+256. chore (n.) 雜務
+257. sew (v.) 縫紉
+258. repair (v.) 修理
+259. dedicated to (adj.) 致力於…的
+260. schedule (n./v.) 時程；安排
+261. independence (n.) 獨立
+262. beneficial (adj.) 有益的
+
+### 第二回 (1-5 冊)
+1. warf (wharf) 碼頭 (n.)
+2. quality 品質；特質 (n.)
+3. prolong 延長 (v.)
+4. unnecessary 不必要的 (adj.)
+5. treatment 治療；對待 (n.)
+6. prior 先前的；較早的 (adj.)
+7. cozy 舒適的；溫馨的 (adj.)
+8. naïve 天真的；單純的 (adj.)
+9. allergic 過敏的 (adj.)
+10. essentially 基本上；本質上 (adv.)
+11. politically 政治上地 (adv.)
+12. spiritually 心靈上地；精神上地 (adv.)
+13. technically 技術上地；嚴格來說 (adv.)
+14. apply for 申請 (phr.)
+15. commitment 承諾；投入 (n.)
+16. process 過程；加工處理 (n./v.)
+17. determine 決定；判定 (v.)
+18. overcome 克服 (v.)
+19. fulfill 實現；履行 (v.)
+20. consume 消耗；吃喝 (v.)
+21. amuse 娛樂；使開心 (v.)
+22. at the sight of 一看到…(phr.)
+23. faint 昏倒；微弱的 (v./adj.)
+24. resign 辭職 (v.)
+25. grieve 悲傷；哀悼 (v.)
+26. expand 擴張；擴大 (v.)
+27. ethics 倫理；道德準則 (n.)
+28. reveal 揭露 (v.)
+29. third-party 第三方的 (adj.)
+30. extend 延長；延伸 (v.)
+31. violate 違反；侵犯 (v.)
+32. discipline 紀律；訓練 (n./v.)
+33. furnish 配備；供應 (v.)
+34. construction 建築；施工 (n.)
+35. highway 公路；高速公路 (n.)
+36. official 官方的；官員 (adj./n.)
+37. bribe 賄賂 (n./v.)
+38. feast 盛宴 (n./v.)
+39. panel 專家小組；板子 (n.)
+40. halt 停止 (v./n.)
+41. nursery 托兒所 (n.)
+42. flee 逃跑；逃離 (v.)
+43. civil war 內戰 (n.)
+44. breakout 爆發 (n.)
+45. refugee 難民 (n.)
+46. immigrant 移民 (n.)
+47. pedestrian 行人 (n.)
+48. diplomat 外交官 (n.)
+49. ankle 腳踝 (n.)
+50. emerge 出現；浮現 (v.)
+51. resemble 像；與…相似 (v.)
+52. invade 入侵 (v.)
+53. swell 腫脹；增加 (v.)
+54. sincere 真誠的 (adj.)
+55. utterly 完全地；徹底地 (adv.)
+56. randomly 隨機地 (adv.)
+57. doubtfully 懷疑地 (adv.)
+58. consequently 因此；結果 (adv.)
+59. public hearing 公聽會 (n.)
+60. power plant 發電廠 (n.)
+61. and the like 以及類似的事物 (phr.)
+62. shortcoming 缺點；短處 (n.)
+63. masterpiece 傑作 (n.)
+64. framework 框架；架構 (n.)
+65. commonplace 司空見慣的事；平凡的 (n./adj.)
+66. demanding 嚴格的；要求高的 (adj.)
+67. conceal 隱藏；掩蓋 (v.)
+68. manufacture 製造；生產 (v./n.)
+69. substitute 代替；替代品 (v./n.)
+70. existing 現存的；現有的 (adj.)
+71. cognitive 認知的 (adj.)
+72. clue 線索；提示 (n.)
+73. detect 偵測；察覺 (v.)
+74. inactive 不活躍的 (adj.)
+75. physical 身體的；物理的 (adj.)
+76. blink 眨眼；閃爍 (v./n.)
+77. reduce 減少 (v.)
+78. pattern 模式；圖案 (n.)
+79. deceptively 欺騙地；看似…地 (adv.)
+80. liar 說謊者 (n.)
+81. freeze 凍結；停止 (v.)
+82. obscure 模糊的；使模糊 (adj./v.)
+83. pose 擺姿勢；提出 (v.)
+84. evidence 證據 (n.)
+85. adopt 採用；收養 (v.)
+86. impersonal 客觀的；非個人的 (adj.)
+87. distance 距離；疏遠 (n./v.)
+88. completely 完全地 (adv.)
+89. seek 尋求；追求 (v.)
+90. suspect 懷疑；嫌疑犯 (v./n.)
+91. simultaneously 同時地 (adv.)
+92. monitor 監控；螢幕 (v./n.)
+93. linguistic 語言的 (adj.)
+94. feature 特徵；特色 (n.)
+95. intentionally 有意地 (adv.)
+96. logical 合邏輯的 (adj.)
+97. vertical 垂直的 (adj.)
+98. satisfactory 令人滿意的 (adj.)
+99. contrary 相反的；反對的 (adj.)
+100. frequency 頻率 (n.)
+101. deficiency 缺乏；不足 (n.)
+102. currency 貨幣；通用性 (n.)
+103. fluency 流利；流暢 (n.)
+104. provoke 激起；挑釁 (v.)
+105. curiosity 好奇心 (n.)
+106. extra 額外的 (adj./n.)
+107. promote 促進；推廣 (v.)
+108. above all 尤其；最重要的是 (phr.)
+109. copyright 版權 (n.)
+110. fictional 虛構的 (adj.)
+111. director 導演；主管 (n.)
+112. assistant 助理 (n.)
+113. plot 情節；陰謀 (n./v.)
+114. enneagram 九型人格 (n.)
+115. initial 最初的 (adj.)
+116. embed 嵌入；插入 (v.)
+117. be supposed to 應該 (phr.)
+118. appear 出現；看起來 (v.)
+119. pleasure 愉快；樂趣 (n.)
+120. reason 理由；原因 (n.)
+121. publish 出版；發表 (v.)
+122. competitor 競爭者 (n.)
+123. typical 典型的 (adj.)
+124. strategy 策略；計畫 (n.)
+125. grocery 雜貨店 (n.)
+126. sue 控告；起訴 (v.)
+127. violation 違反；侵犯 (n.)
+128. accusation 指控；控訴 (n.)
+129. court 法院；追求 (n./v.)
+130. search 搜尋；搜索 (v./n.)
+131. defense 防禦；辯護 (n./v.)
+132. in charge of 負責… (phr.)
+133. ranch from 源自… (phr.)
+134. stem from 起源於；由…造成 (phr.)
+135. venture 冒險；企業 (n./v.)
+136. curb 控制；路邊 (v./n.)
+137. gulp 大口吞；吞嚥 (v./n.)
+138. escort 護送；陪同 (v./n.)
+139. spur 激勵；馬刺 (v./n.)
+140. resolve 解決；決心 (v./n.)
+141. tolerate 容忍；忍受 (v.)
+142. slightly 輕微地 (adv.)
+143. more than 超過；不僅 (phr.)
+144. debut 首次登場 (n./v.)
+145. cigarette 香菸 (n.)
+146. tobacco 菸草 (n.)
+147. teenager 青少年 (n.)
+148. alternative 替代的；選擇 (adj./n.)
+149. vape 電子菸 (v./n.)
+150. factor 因素 (n.)
+151. account for 解釋；占比 (phr.)
+152. combination 結合；組合 (n.)
+153. device 裝置；設備 (n.)
+154. flavor 口味；味道 (n.)
+155. to list just a few 僅舉幾例 (phr.)
+156. tend to 傾向於 (phr.)
+157. regulation 規定；管理 (n.)
+158. unaware of 未意識到；不知道 (phr.)
+159. regrettable 可惜的；令人遺憾的 (adj.)
+160. absence 缺席；缺乏 (n.)
+161. arguably 可論證地；可說 (adv.)
+162. surpassing 卓越的；超越的 (adj.)
+163. herd 群；放牧 (n./v.)
+164. mistakenly 錯誤地 (adv.)
+165. overlook 忽略；俯瞰 (v.)
+166. resist 抵抗；抗拒 (v.)
+167. skyrocket 暴漲；急速上升 (v./n.)
+168. obesity 肥胖 (n.)
+169. income 收入 (n.)
+170. urban 城市的 (adj.)
+171. adequately 適當地 (adv.)
+172. nourish 滋養；培養 (v.)
+173. infanthood 嬰兒期 (n.)
+174. be exposed to 接觸到；暴露於 (phr.)
+175. nutritional 營養的 (adj.)
+176. behavior 行為；舉止 (n.)
+177. aspect 方面；層面 (n.)
+178. diet 飲食；節食 (n./v.)
+179. regular 規律的；定期的 (adj.)
+180. physical 身體的；物理的 (adj.)
+181. grand 宏偉的；盛大的 (adj.)
+182. intake 攝取量；進口 (n.)
+183. adhere 黏附；堅持 (v.)
+184. guideline 指導方針 (n.)
+185. complication 併發症；複雜情況 (n.)
+186. community 社區；群體 (n.)
+187. surround 圍繞；包圍 (v.)
+188. healthcare 醫療保健 (n.)
+189. behave 表現；舉止 (v.)
+190. gene 基因 (n.)
+191. identify 識別；認出 (v.)
+192. route 路線；途徑 (n.)
+193. factor 因素 (n.)
+194. respond 回應；反應 (v.)
+195. calorie 卡路里 (n.)
+196. engage in 從事；參與 (phr.)
+197. moderate 適度的；調節 (adj./v.)
+198. intense 強烈的；緊張的 (adj.)
+
+### 第三回 (1-5 冊)
+1. implement 實施；執行 (v.)
+2. expansion 擴張；膨脹 (n.)
+3. reluctant 不情願的；勉強的 (adj.)
+4. imaginary 想像的；虛構的 (adj.)
+5. ambitious 有野心的；雄心勃勃的 (adj.)
+6. miserable 悲慘的；痛苦的 (adj.)
+7. voluntarily 自願地 (adv.)
+8. moderately 適度地；中等地 (adv.)
+9. mechanically 機械地；呆板地 (adv.)
+10. issue 議題；發行 (n./v.)
+11. consequently 因此；所以 (adv.)
+12. be regarded as 被視為 (phr.)
+13. innate 天生的；固有的 (adj.)
+14. sixth sense 第六感 (n.)
+15. optimism 樂觀；樂觀態度 (n.)
+16. maintenance 維護；保養 (n.)
+17. intuition 直覺；直覺力 (n.)
+18. comprehension 理解；領悟 (n.)
+19. phobia 恐懼症；畏懼 (n.)
+20. refer to 提到；參考 (phr.)
+21. coined 創造(詞語)；杜撰 (v.)
+22. come 來；到達 (v.)
+23. acquire 獲得；取得 (v.)
+24. amount 數量；總額 (n./v.)
+25. archer 弓箭手 (n.)
+26. metal 金屬 (n.)
+27. vivid 生動的；鮮明的 (adj.)
+28. ultimate 最終的；極限的 (adj.)
+29. spacious 寬敞的 (adj.)
+30. brutal 殘酷的；野蠻的 (adj.)
+31. critics 評論家；批評者 (n.)
+32. outdate 過時；淘汰 (v.)
+33. stereotypical 刻板的；老套的 (adj.)
+34. gender 性別；性 (n.)
+35. equality 平等；均等 (n.)
+36. shrink 縮小；退縮 (v.)
+37. transport 運輸；運送 (v./n.)
+38. confine 限制；監禁 (v.)
+39. strip 剝除；脫衣 (v./n.)
+40. even if 即使 (phr.)
+41. disapprove 不贊成；反對 (v.)
+42. dramatic 戲劇性的；引人注目的 (adj.)
+43. diligent 勤勉的；用功的 (adj.)
+44. courteous 有禮貌的；謙恭的 (adj.)
+45. clumsy 笨拙的；拙劣的 (adj.)
+46. protest 抗議；反對 (v./n.)
+47. official 官方的；官員 (adj./n.)
+48. threatened 受威脅的 (adj.)
+49. file 檔案；排成行 (n./v.)
+50. lawsuit 訴訟；起訴 (n.)
+51. mob 暴民；烏合之眾 (n.)
+52. none 無人；沒有一個 (pron.)
+53. victim 受害者 (n.)
+54. author 作者；作家 (n.)
+55. sincere 真誠的；誠摯的 (adj.)
+56. guidance 指導；引導 (n.)
+57. appreciation 欣賞；感謝 (n.)
+58. consideration 考慮；體貼 (n.)
+59. preservation 保存；維護 (n.)
+60. symptom 症狀；徵兆 (n.)
+61. infection 感染 (n.)
+62. antibiotics 抗生素 (n.)
+63. speculate 推測；投機 (v.)
+64. assassinate 暗殺；行刺 (v.)
+65. manifest 顯示；表明 (v./adj.)
+66. compromise 妥協；折衷 (n./v.)
+67. dim 昏暗的；模糊的 (adj./v.)
+68. picturesque 如畫的；生動的 (adj.)
+69. resemble 像；與…相似 (v.)
+70. medieval 中世紀的 (adj.)
+71. magnetic 有磁性的；有吸引力的 (adj.)
+72. situated 位於；座落於 (v./adj.)
+73. boast 自誇；擁有 (v.)
+74. gothic 哥德式的 (adj.)
+75. exhibition 展覽；表現 (n.)
+76. designate 指定；任命 (v.)
+77. pedestrian 行人；平凡的 (n./adj.)
+78. ascend 上升；攀登 (v.)
+79. wind 風；蜿蜒 (n./v.)
+80. staircase 樓梯 (n.)
+81. magnificent 宏偉的；壯麗的 (adj.)
+82. intimate 親密的；密切的 (adj.)
+83. begun 開始；著手 (v.)
+84. political 政治的 (adj.)
+85. correctness 正確性；恰當性 (n.)
+86. bully 霸凌；欺負 (v./n.)
+87. religion 宗教；信仰 (n.)
+88. teeth 牙齒 (n.)
+89. frontier 邊界；邊境 (n.)
+90. discrimination 歧視；區別待遇 (n.)
+91. anti 反…；抗… (prefix/adj.)
+92. ancient 古老的；古代的 (adj.)
+93. prejudice 偏見；歧視 (n./v.)
+94. associate 聯想；夥伴 (v./n.)
+95. aggressive 侵略性的；好鬥的 (adj.)
+96. negative 消極的；負面的 (adj.)
+97. expert 專家；熟練的 (n./adj.)
+98. confident 自信的 (adj.)
+99. address 地址；演講；處理 (n./v.)
+100. expend 花費；消耗 (v.)
+101. definition 定義；說明 (n.)
+102. encourage 鼓勵；促進 (v.)
+103. identity 身份；特性 (n.)
+104. theme 主題；題目 (n.)
+105. deserve 應得；值得 (v.)
+106. tolerance 容忍；忍耐 (n.)
+107. sympathy 同情；慰問 (n.)
+108. account for 解釋；佔比 (phr.)
+109. meanwhile 同時；其間 (adv.)
+110. nevertheless 然而；不過 (adv.)
+111. furthermore 此外；而且 (adv.)
+112. hence 因此；由此 (adv.)
+113. for the sake of 為了…的緣故 (phr.)
+114. at the mercy of 任由…擺布 (phr.)
+115. on behalf of 代表… (phr.)
+116. in preference to 優先於 (phr.)
+117. framework 框架；結構 (n.)
+118. opponent 對手；反對者 (n.)
+119. counterpart 對應物；相應的人或物 (n.)
+120. convince 說服；使信服 (v.)
+121. embrace 擁抱；接受 (v.)
+122. fulfill 履行；實現 (v.)
+123. install 安裝；設置 (v.)
+124. lushly 茂盛地；豐富地 (adv.)
+125. vine 藤蔓；葡萄藤 (n.)
+126. barren 貧瘠的；不孕的 (adj.)
+127. bleak 荒涼的；黯淡的 (adj.)
+128. degree 程度；學位 (n.)
+129. career 職業；生涯 (n.)
+130. fanatic 狂熱者；盲信者 (n./adj.)
+131. owner 擁有者；物主 (n.)
+132. landscape 風景；景觀 (n.)
+133. lease 租約；租賃 (n./v.)
+134. acre 英畝 (n.)
+135. pine 松樹 (n.)
+136. bamboo 竹子 (n.)
+137. delightly 高興地；愉快地 (adv.)
+138. extraordinary 非凡的；特別的 (adj.)
+139. brief 簡短的；摘要 (adj./n.)
+140. exotic 異國的；外來的 (adj.)
+141. fascinate 使著迷；吸引 (v.)
+142. privilege 特權；優待 (n.)
+143. shade 陰影；遮蔽 (n./v.)
+144. grace 優雅；恩典 (n./v.)
+145. leapt 跳躍；激增 (v.)
+146. transformation 轉變；改變 (n.)
+147. figure 數字；人物；計算 (n./v.)
+148. advance 前進；提升 (v./n.)
+149. optional 可選擇的；非必需的 (adj.)
+150. responsible 負責的；有責任的 (adj.)
+151. competent 有能力的；勝任的 (adj.)
+152. contract 合約；縮小 (n./v.)
+153. deadly 致命的；非常的 (adj.)
+154. vaccine 疫苗 (n.)
+155. license 許可證；執照 (n.)
+156. struggle 掙扎；努力 (v./n.)
+157. epidemic 流行病；流行的 (n./adj.)
+158. arise 出現；產生 (v.)
+159. conduct 行為；實施 (n./v.)
+160. vintage 經典的；古典的 (adj./n.)
+161. immunity 免疫力；豁免 (n.)
+162. vaccination 疫苗接種 (n.)
+163. halt 停止；中止 (v./n.)
+164. mandatory 強制的；命令的 (adj.)
+165. co-operate 合作；協作 (v.)
+166. strive 努力；奮鬥 (v.)
+167. nearly 幾乎；差不多 (adv.)
+168. partially 部分地 (adv.)
+169. unrest 動亂；不安 (n.)
+170. previous 先前的；以前的 (adj.)
+171. prove 證明；驗證 (v.)
+
+### 第四回 (1-5 冊)
+1. ancient (adj.) 古老的
+2. democratic (adj.) 民主的
+3. target (n./v.) 目標；以…為目標
+4. cradle (n.) 搖籃; 發源地
+5. milestone (n.) 里程碑
+6. sober (adj.) 清醒的；冷靜的
+7. highlight (v./n.) 強調；亮點
+8. majestic (adj.) 宏偉的
+9. vigorous (adj.) 有活力的
+10. noticeable (adj.) 明顯的
+11. claim (v./n.) 聲稱；要求
+12. convention (n.) 大會；慣例
+13. insurance (n.) 保險
+14. ownership (n.) 所有權
+15. surround (v.) 圍繞
+16. balloon (n.) 氣球
+17. scoop (n./v.) 勺子；舀
+18. flip (v.) 翻轉
+19. chirp (v./n.) 鳥叫；啁啾
+20. generation (n.) 世代
+21. construction (n.) 建造
+22. casual (adj.) 隨便的；休閒的
+23. durable (adj.) 耐用的
+24. manual (adj.) 手動的
+25. violent (adj.) 暴力的
+26. stumble (v.) 絆倒
+27. graze (v./n.) 擦傷；放牧
+28. navigate (v.) 導航
+29. dwell (v.) 居住
+30. angle (n.) 角度
+31. margin (n.) 邊緣；利潤
+32. exception (n.) 例外
+33. limitation (n.) 限制
+34. stretch (v./n.) 伸展
+35. constitution (n.) 憲法
+36. objection (n.) 反對
+37. sculpture (n.) 雕刻、雕像
+38. adventure (n.) 冒險
+39. apply (v.) 申請；塗抹
+40. lotion (n.) 乳液
+41. alert (adj./v.) 警覺的；提醒
+42. itchy (adj.) 發癢的
+43. steady (adj.) 穩定的
+44. flexible (adj.) 有彈性的；靈活的
+45. broaden (v.) 拓寬
+46. loosen (v.) 放鬆；鬆開
+47. urban (adj.) 城市的
+48. transportation (n.) 交通運輸
+49. available (adj.) 可獲得的
+50. roam (v.) 漫遊
+51. orchard (n.) 果園
+52. spectacular (adj.) 壯觀的
+53. ideal (adj.) 理想的
+54. fantastic (adj.) 極好的
+55. formally (adv.) 正式地
+56. densely (adv.) 密集地
+57. loosely (adv.) 鬆散地
+58. latterly (adv.) 最近；後期
+59. prosperous (adj.) 繁榮的
+60. alternate (adj./v.) 交替的；輪流
+61. flawless (adj.) 完美無瑕的
+62. remote (adj.) 遙遠的；偏遠的
+63. whether or not (conj.) 是否
+64. for fear that (conj.) 以免
+65. as long as (conj.) 只要
+66. owing to (prep.) 由於
+67. in contrast to (prep.) 與…相反
+68. relevant to (adj.) 與…相關
+69. in spite of (prep.) 儘管
+70. board (n./v.) 板子；登上（交通工具）
+71. market (n./v.) 市場；行銷
+72. alphabet (n.) 字母表
+73. upper (adj.) 上方的
+74. device (n.) 裝置
+75. supposedly (adv.) 據說
+76. briefly (adv.) 簡短地
+77. certain (adj.) 某些；確定的
+78. prediction (n.) 預測
+79. original (adj.) 原始的；原創的
+80. refer to as (v.) 稱作
+81. associate (v.) 聯想；結交
+82. devil (n.) 魔鬼
+83. demonstrate (v.) 示範；證明
+84. lack (v./n.) 缺乏
+85. education (n.) 教育
+86. common sense (n.) 常識
+87. maintain (v.) 維持
+88. regulate (v.) 管理；調節
+89. alter (v.) 改變
+90. postpone (v.) 延期
+91. seize (v.) 抓住；奪取
+92. far from (prep.) 遠離；完全不是
+93. on account of (prep.) 因為
+94. in consequence of (prep.) 因…的結果
+95. collapse (v./n.) 崩塌
+96. consult (v.) 諮詢
+97. prosper (v.) 繁榮
+98. recite (v.) 背誦
+99. mock (v./adj.) 嘲笑；模擬的
+100. sparkle (v.) 閃耀
+101. peer (v./n.) 凝視；同儕
+102. twist (v./n.) 扭曲
+103. minimum (n./adj.) 最小值；最小的
+104. publish (v.) 出版
+105. on the loose (phr.) 四處遊蕩；失控
+106. solid (adj.) 固體的；堅固的
+107. genetic (adj.) 基因的
+108. primitive (adj.) 原始的
+109. ape (n.) 猿
+110. average (adj./n.) 平均的；平均
+111. beast (n.) 野獸
+112. region (n.) 地區
+113. deserve (v.) 應得
+114. normal (adj.) 正常的
+115. defend (v.) 防禦
+116. community (n.) 社區
+117. evidence (n.) 證據
+118. exist (v.) 存在
+119. multiple (adj.) 多重的
+120. vision (n.) 視力；願景
+121. fake (adj./n.) 假的；假貨
+122. confuse (v.) 使困惑
+123. freak (n./adj.) 怪人；反常的
+124. arouse (v.) 激起
+125. conference (n.) 會議
+126. establish (v.) 建立
+127. experiment (n./v.) 實驗
+128. frequency (n.) 頻率
+129. publication (n.) 出版物
+130. compose (v.) 組成；作曲
+131. material (n.) 材料
+132. finalize (v.) 完成定稿
+133. be intended to (phr.) 旨在
+134. remain (v.) 保持；剩下
+135. field (n.) 領域
+136. affect (v.) 影響
+137. decade (n.) 十年
+138. participant (n.) 參與者
+139. gather (v.) 收集；聚集
+140. standard (n./adj.) 標準
+141. temporary (adj.) 暫時的
+142. interrupt (v.) 打斷
+143. upset (v./adj.) 使心煩；難過的
+144. a series of (phr.) 一連串
+145. title (n.) 標題
+146. as well as (phr.) 以及
+147. a set of (phr.) 一套
+148. accompany (v.) 陪伴
+149. selection (n.) 選擇
+150. vocabulary (n.) 字彙
+151. rely on (v.) 依靠
+152. anniversary (n.) 週年紀念
+153. update (v./n.) 更新
+154. version (n.) 版本
+
+### 第五回 (1-5 冊)
+1. ignore (v.) 忽略
+2. whistle (v./n.) 口哨；吹口哨
+3. whisper (v./n.) 低語；耳語
+4. hesitate (v.) 猶豫
+5. venture (v./n.) 冒險
+6. considerably (adv.) 相當大地
+7. improve (v.) 改善
+8. academic (adj.) 學術的
+9. apply (v.) 申請；應用
+10. content (n.) 內容
+11. assistance (n.) 協助
+12. strategy (n.) 策略
+13. element (n.) 要素
+14. definition (n.) 定義
+15. basic (adj.) 基本的
+16. essential (adj.) 必要的；重要的
+17. characteristic (n.) 特徵
+18. freedom (n.) 自由
+19. journalism (n.) 新聞業
+20. temporary (adj.) 暫時的
+21. democratic (adj.) 民主的
+22. appropriate (adj.) 適當的
+23. reasonable (adj.) 合理的
+24. pandemic (n./adj.) 大流行
+25. race (n.) 種族；比賽
+26. awareness (n.) 意識
+27. preventive (adj.) 預防的
+28. diploma (n.) 文憑
+29. campaign (n.) 活動；運動
+30. measure (v./n.) 措施；測量
+31. procedure (n.) 程序
+32. relief supply (n.) 救援物資
+33. charity (n.) 慈善
+34. rapidly (adv.) 迅速地
+35. victim (n.) 受害者
+36. expose (v.) 使暴露；揭露
+37. distribute (v.) 分配；分發
+38. attach (v.) 附加；貼上
+39. sprinkle (v.) 灑
+40. district (n.) 區域
+41. retirement (n.) 退休
+42. pace (n.) 步伐；速度
+43. atmosphere (n.) 氣氛；大氣
+44. rural (adj.) 鄉村的
+45. urban (adj.) 城市的
+46. secure (v./adj.) 保護；使安全
+47. idle (adj.) 閒散的；無所事事的
+48. informative (adj.) 資訊豐富的
+49. primitive (adj.) 原始的
+50. spiritual (adj.) 心靈的；精神的
+51. fundamental (adj.) 基礎的；根本的
+52. rescue (v./n.) 救援
+53. crew (n.) 全體工作人員
+54. at the scene (phr.) 在現場
+55. speed (v./n.) 速度；加速
+56. literally (adv.) 照字面地；確實
+57. miserably (adv.) 悲慘地
+58. promptly (adv.) 立即地
+59. gracefully (adv.) 優雅地
+60. colleague (n.) 同事
+61. announce (v.) 宣布
+62. species (n.) 物種
+63. astonish (v.) 使驚訝
+64. condemn (v.) 譴責
+65. diminish (v.) 減少
+66. utilize (v.) 利用
+67. monument (n.) 紀念碑
+68. remind (v.) 提醒
+69. resident (n.) 居民
+70. glorious (adj.) 光榮的
+71. implication (n.) 含意
+72. ceremony (n.) 典禮
+73. liability (n.) 責任；負債
+74. heritage (n.) 遺產；文化傳承
+75. pitcher (n.) 投手
+76. take in (phr.) 吸收；理解
+77. nutrient (n.) 養分；營養物
+78. organism (n.) 生物
+79. structure (n.) 結構
+80. insect (n.) 昆蟲
+81. capture (v.) 捕捉
+82. escape (v.) 逃脫
+83. trap (n./v.) 陷阱；困住
+84. contain (v.) 含有；容納
+85. chemical (n./adj.) 化學物質
+86. consume (v.) 消耗；吃
+87. picky (adj.) 挑剔的
+88. evolution (n.) 進化
+89. develop (v.) 發展
+90. feature (n./v.) 特徵；以…為特色
+91. obtain (v.) 獲得
+92. sufficient (adj.) 足夠的
+93. soil (n.) 土壤
+94. acquire (v.) 獲得；習得
+95. beware (v.) 小心；當心
+96. indulge (v.) 沈溺；縱容
+97. rather than (prep./conj.) 而不是
+98. as well as (prep.) 以及
+99. regardless of (prep.) 不管；不顧
+100. diversify (v.) 多樣化
+101. owing to (prep.) 由於
+102. eventually (adv.) 最終；終於
+103. supposedly (adv.) 據說
+104. stem from (v.) 源自；起因於
+105. attend to (phr.) 處理; 照顧
+106. take the toll on (phr.) 對…造成傷害
+107. popularity (n.) 人氣；受歡迎程度
+108. remarkable (adj.) 非凡的；顯著的
+109. phenomenon (n.) 現象
+110. statistics (n.) 統計資料
+111. boom (n./v.) 繁榮；激增
+112. annual (adj.) 每年的
+113. income (n.) 收入
+114. billion (n.) 十億
+115. platform (n.) 平台
+116. individual (n.) 個人
+117. upload (v.) 上傳
+118. viewer (n.) 觀眾
+119. allow (v.) 允許
+120. rating (n.) 評價；評分
+121. comment (n./v.) 留言；評論
+122. private (adj.) 私人的
+123. material (n.) 資料；素材
+124. corporation (n.) 公司；企業
+125. content (n.) 內容
+126. steady (adj.) 穩定的
+127. stream (n./v.) 流；串流
+128. channel (n.) 頻道
+129. cooperate (v.) 合作
+130. advertiser (n.) 廣告商
+131. receive (v.) 收到；接收
+132. viewership (n.) 收視率；觀看量
+133. creative (adj.) 有創意的
+134. affordable (adj.) 負擔得起的
+135. beneficial (adj.) 有益的
+136. recognizable (adj.) 可辨認的
+137. essential (adj.) 必要的；基本的
+138. reflect on (phr.) 反思；思考
+139. abound with (phr.) 充滿；富含
+140. devote oneself to (phr.) 致力於
+141. take part in (phr.) 參加
+142. constantly (adv.) 不斷地
+143. enormously (adv.) 極大地
+144. universally (adv.) 普遍地
+145. permanently (adv.) 永久地
+146. identity (n.) 身份
+147. occupation (n.) 職業
+148. interference (n.) 干擾
+149. alternative (n./adj.) 替代方案；替代的
+150. construction (n.) 建造；建設
+151. far from (phr.) 遠非；一點也不
+152. neglect (v.) 忽視
+153. employee (n.) 員工
+154. consist of (phr.) 由…組成
+155. abandon (v.) 放棄；遺棄
+156. remote (adj.) 遙遠的；偏僻的
+157. tourist (n.) 旅客；觀光客
+158. mystery (n.) 神秘；謎
+159. located (adj.) 位於
+160. take place (phr.) 發生
+161. primary (adj.) 主要的；初級的
+162. outlying (adj.) 偏遠的
+163. state (n./v.) 州；國家；聲明
+164. entire (adj.) 全部的
+165. complex (adj.) 複雜的 / (n.) 建築群
+166. destination (n.) 目的地
+167. component (n.) 組成部分
+168. industry (n.) 產業
+169. generate (v.) 產生；創造
+170. vital (adj.) 重要的；必需的
+171. revenue (n.) 收入；收益
+172. regarding (prep.) 關於
+173. splash (n./v.) 濺起；水花
+174. pregnant (adj.) 懷孕的
+175. buddha (n.) 佛陀
+176. statue (n.) 雕像
+177. elder (n.) 長者
+178. pour (v.) 倒；灑
+179. common sense (n.) 常識
+180. central (adj.) 中心的；主要的
+181. current (adj./n.) 當前的；流動的
+182. contrast (n./v.) 對比；差異
+183. unofficially (adv.) 非正式地
+184. pure (adj.) 純粹的
+185. observe (v.) 觀察；遵守
+186. foreigner (n.) 外國人
+187. gather (v.) 聚集
+188. throughout (prep./adv.) 遍及；全程
+189. oriented (adj.) 以…為導向的
+190. sprinkle (v.) 灑；噴灑
+191. participant (n.) 參加者
+192. few (adj./pron.) 很少；幾乎沒有
+193. avoid (v.) 避免
+194. soak (v.) 浸泡
+195. remove (v.) 移除；去掉
+196. valuable (adj.) 有價值的
+197. passport (n.) 護照
+198. document (n.) 文件
+199. waterproof (adj.) 防水的
+200. otherwise (adv.) 否則
+201. patience (n.) 耐心
+
+### 第六回 (1-5 冊 111 全模)
+1. label (v./n.) 貼標籤；標籤
+2. behavior (n.) 行為
+3. attitude (n.) 態度
+4. contract (n.) 合約；(v.) 收縮
+5. resolute (adj.) 堅決的
+6. crucial (adj.) 關鍵的
+7. lousy (adj.) 很差的；糟糕的
+8. crown (v./n.) 加冕；皇冠
+9. compose (v.) 組成；作曲
+10. accent (n.) 口音; 腔調
+11. dialect (n.) 方言
+12. merit (n.) 優點；價值
+13. linen (n.) 亞麻布；亞麻製品
+14. illusion (n.) 幻覺；錯覺
+15. scatter (v.) 分散；撒
+16. shrug (v./n.) 聳肩
+17. shatter (v.) 粉碎；破碎
+18. shiver (v./n.) 發抖
+19. physical (adj.) 實體的；身體的
+20. contact (n./v.) 接觸；聯繫
+21. hygiene (n.) 衛生
+22. measurement (n.) 測量；尺寸
+23. precaution (n.) 預防措施
+24. inspection (n.) 檢查；檢驗
+25. estimation (n.) 估計；評估
+26. outfit (n.) 全套服裝
+27. fragile (adj.) 脆弱的；易碎的
+28. dense (adj.) 密集的
+29. rigid (adj.) 僵硬的；堅固的
+30. elastic (adj.) 有彈性的
+31. rumor (n.) 謠言
+32. orientation (n.) 傾向
+33. dedicate (v.) 奉獻；致力
+34. biological (adj.) 生物的；生物學的
+35. literal (adj.) 字面上的
+36. dominant (adj.) 佔優的；支配的
+37. loan (n./v.) 貸款
+38. custody (n.) 監護；拘留
+39. residence (n.) 住所
+40. pose (v.) 造成；擺姿勢
+41. commercial (adj.) 商業的；(n.) 廣告
+42. resume (v.) 恢復；(n.) 履歷
+43. prescribe (v.) 開處方；規定
+44. snap (v.) 快速拍照
+45. bureau (n.) 局、處、署
+46. panic (n./v.) 驚慌
+47. modify (v.) 修改
+48. approach (v./n.) 接近；方法
+49. violate (v.) 違反
+50. shortage (n.) 缺乏；短缺
+51. aim at (phr.) 以…為目標
+52. necessity (n.) 必需品；必要性
+53. liberally (adv.) 大量地；自由地
+54. gratefully (adv.) 感激地
+55. preferably (adv.) 最好；寧可
+56. excessively (adv.) 過度地
+57. overwhelm (v.) 壓倒；使招架不住
+58. misleading (adj.) 誤導的
+59. exposed to (phr.) 暴露於
+60. differentiate (v.) 區分；分辨
+61. prove (v.) 證明
+62. ingredient (n.) 成分；材料
+63. comprise (v.) 包含；由…組成
+64. protein (n.) 蛋白質
+65. clarify (v.) 釐清；澄清
+66. penetrate (v.) 穿透；滲入
+67. let alone (phr.) 更不用說
+68. activate (v.) 啟動
+69. response (n.) 回應；反應
+70. occurrence (n.) 發生事件
+71. instantly (adv.) 立即地
+72. discard (v.) 丟棄
+73. fall for (v.) 上當
+74. false (adj.) 錯誤的；假的
+75. verify (v.) 驗證
+76. cross-check (v.) 交叉核對
+77. credible (adj.) 可信的
+78. feasible (adj.) 可行的
+79. hesitation (n.) 猶豫
+80. fundamental (adj.) 基本的；根本的
+81. considerable (adj.) 相當大的
+82. sufficient (adj.) 足夠的
+83. evidence (n.) 證據
+84. complex (adj.) 複雜的；(n.) 建築群
+85. procedure (n.) 程序
+86. eliminate (v.) 消除
+87. reinforce (v.) 加強
+88. trigger (v./n.) 引發；觸發
+89. subtract (v.) 減去
+90. cast a shadow over (phr.) 為…蒙上陰影
+91. shed light on (phr.) 釐清；揭示
+92. keep track of (phr.) 追蹤；掌握
+93. hold on to (phr.) 堅持；抓牢
+94. on top of that (phr.) 除此之外
+95. specific (adj.) 具體的；特定的
+96. catastrophic (adj.) 災難性的
+97. outbreak (n.) 爆發
+98. rapidly (adv.) 迅速地
+99. spread (v./n.) 傳播；擴散
+100. horrific (adj.) 可怕的
+101. symptom (n.) 症狀
+102. intense (adj.) 強烈的
+103. strengthen (v.) 加強
+104. detect (v.) 偵測；察覺
+105. suppress (v.) 抑制；壓制
+106. found (v.) 創立；建立
+107. spark (v.) 引發；激起
+108. fuel (v.) 加劇；助長
+109. spit (v./n.) 吐出；唾液
+110. toll (n.) 損傷；通行費
+111. drill (v./n.) 演練；鑽孔
+112. namely (adv.) 也就是；即
+113. recall (v./n.) 回想；召回
+114. destiny (n.) 命運
+115. issue (n./v.) 問題；發行
+116. alert (adj./n./v.) 警覺的；警報
+117. bury (v.) 埋葬
+118. trial (n.) 審判；試驗
+119. formally (adv.) 正式地
+120. dominate (v.) 主導；支配
+121. spotlight (n.) 聚光燈；焦點
+122. livestream (n./v.) 直播
+123. viewership (n.) 收視率；觀看數
+124. distribute (v.) 分發；分配
+125. unintentionally (adv.) 無意地
+126. praise (v./n.) 稱讚
+127. attorney (n.) 律師
+128. file (v.) 提出（訴訟、申請）；(n.) 檔案
+129. court (n.) 法院
+130. interrupt (v.) 打斷；中斷
+131. accumulate (v.) 累積
+132. celebrity (n.) 名人
+133. distinguish (v.) 區分；辨別
+134. aggressive (adj.) 侵略性的；積極進取的
+135. testimony (n.) 證詞
+136. persuade (v.) 說服
+137. associate (v.) 聯想；和…關聯
+138. press release (n.) 新聞稿
+139. mobile (adj./n.) 行動的；手機
+140. project (n.) 企劃；專案；(v.) 投射
+141. seller (n.) 賣家
+142. cater to (phr.) 迎合；滿足需求
+143. consumer (n.) 消費者
+144. refer to (phr.) 參考；指的是
+145. financial (adj.) 金融的；財務的
+146. via (prep.) 透過；經由
+147. merchandise (n.) 商品
+148. device (n.) 裝置；設備
+149. install (v.) 安裝
+150. scan (v.) 掃描
+151. tap (v.) 輕觸；點擊（手機）
+152. give rise to (phr.) 引起；導致
+153. unprecedented (adj.) 前所未有的
+154. network (n.) 網路；電視網
+155. resident (n.) 居民；住戶
+156. digital (adj.) 數位的
+157. disaster (n.) 災害；災難
+158. acute (adj.) 急性的；劇烈的
+159. instead of (prep.) 代替；而不是
+160. physical (adj.) 身體的；實體的
+161. rapid (adj.) 快速的
+162. retailer (n.) 零售商
+163. operator (n.) 操作員；業者
+164. willing to (phr.) 願意
+165. embrace (v.) 接受；擁抱
+166. fail to (phr.) 未能；沒做到
+167. necessity (n.) 必需品；必要
+168. failure (n.) 失敗
+
+### 第七回 (1-5 冊 113 北北基)
+1. strict (adj.) 嚴格的
+2. misbehave (v.) 行為不端
+3. intimidate (v.) 威嚇；恐嚇
+4. persuade (v.) 說服
+5. console (v.) 安慰
+6. trick (n./v.) 欺騙；詭計
+7. scam (n./v.) 詐騙
+8. enormous (adj.) 巨大的
+9. estimate (v./n.) 估計
+10. ethical (adj.) 道德的
+11. enlightening (adj.) 有啟發性的
+12. victim (n.) 受害者
+13. relief (n.) 減輕；救濟
+14. sympathy (n.) 同情
+15. indifference (n.) 漠不關心
+16. endurance (n.) 忍耐力
+17. hostility (n.) 敵意
+18. delay (v./n.) 延遲
+19. disrupt (v.) 打亂；中斷
+20. endeavor (n./v.) 努力；嘗試
+21. accumulation (n.) 累積
+22. circumstance (n.) 情況；環境
+23. rehearsal (n.) 排練
+24. college (n.) 大學
+25. application (n.) 申請；應用
+26. position (n.) 位置；職位
+27. receive (v.) 接收；收到
+28. revise (v.) 修訂
+29. obtain (v.) 獲得
+30. withdraw (v.) 撤回；退出
+31. thrill (n./v.) 興奮；激動
+32. antigua (n.) 安地瓜島
+33. flea (n.) 跳蚤
+34. craft (n.) 手藝；工藝
+35. delicate (adj.) 精緻的；脆弱的
+36. accurate (adj.) 精確的
+37. authentic (adj.) 真實的；可靠的
+38. relevant (adj.) 相關的
+39. comparative (adj.) 比較的
+40. promising (adj.) 有前途的
+41. despair (n./v.) 絕望
+42. contempt (n.) 輕視；蔑視
+43. outrage (n.) 憤怒
+44. sparkle (v./n.) 閃耀
+45. competition (n.) 競爭
+46. strategic (adj.) 戰略的
+47. allow (v.) 允許
+48. championship (n.) 冠軍賽
+49. intensive (adj.) 密集的
+50. partial (adj.) 部分的；偏袒的
+51. tremendous (adj.) 巨大的
+52. vigorous (adj.) 精力充沛的
+53. access (n./v.) 進入；使用
+54. overall (adj./adv.) 總體的
+55. eliminate (v.) 消除；排除
+56. acquire (v.) 獲得；取得
+57. explode (v.) 爆炸；激增
+58. speed (n./v.) 速度；加速
+59. severe (adj.) 嚴重的；劇烈的
+60. recklessly (adv.) 魯莽地
+61. cautiously (adv.) 小心地
+62. dominantly (adv.) 佔優勢地
+63. spontaneously (adv.) 自發地
+64. album (n.) 相冊；唱片
+65. wig (n.) 假髮
+66. feature (v./n.) 特徵；以…為特色
+67. privacy (n.) 隱私
+68. extra (adj./n.) 額外的
+69. to name a few (phr.) 例如
+70. inconsistent (adj.) 不一致的
+71. remove (v.) 移除；去掉
+72. tag (n./v.) 標籤；標記
+73. vaguely (adv.) 模糊地
+74. praise (v./n.) 讚揚
+75. critic (n.) 批評家
+76. comment (n./v.) 評論
+77. vocal (adj.) 發聲的；直言不諱的
+78. melancholy (n./adj.) 憂鬱
+79. obsession (n.) 著迷；執念
+80. nominate (v.) 提名
+81. by all means (phr.) 務必；一定
+82. distinct (adj.) 明顯不同的
+83. roughly (adv./adj.) 大約；粗糙地
+84. get accustomed to (phr.) 習慣於
+85. get along with (phr.) 與…相處
+86. initially (adv.) 最初
+87. suspicious of (phr.) 對…懷疑
+88. criticize (v.) 批評
+89. compliment (v./n.) 讚美
+90. upgrade (v./n.) 升級
+91. facilitate (v.) 促進；使容易
+92. discourage (v.) 阻止；使氣餒
+93. status (n.) 狀態；地位
+94. virtual (adj.) 虛擬的
+95. currency (n.) 貨幣
+96. define (v.) 定義
+97. trade (n./v.) 貿易
+98. restrict (v.) 限制
+99. circulate (v.) 流通；傳播
+100. lack (v./n.) 缺乏
+101. stability (n.) 穩定
+102. dynamic (adj.) 動態的；有活力的
+103. transaction (n.) 交易
+104. security (n.) 安全；保障
+105. fraud (n.) 欺詐；詐騙
+106. amount (n.) 數量；總額
+107. electricity (n.) 電力；電
+108. carbon (n.) 碳
+109. footprint (n.) 足跡；影響
+110. emission (n.) 排放
+111. reliant (adj.) 依賴的
+112. authority (n.) 權威；當局
+113. a means of (phr.) 一種…的方式
+114. via (prep.) 經由；透過
+115. prior to (phr.) 在…之前
+116. insurance (n.) 保險
+117. implement (v./n.) 實施；工具
+118. utilize (v.) 利用
+119. financial (adj.) 財務的
+120. database (n.) 資料庫
+121. revolutionary (adj.) 革命性的
+122. innovation (n.) 創新
+123. independently (adv.) 獨立地
+124. authorities (n.) 當局
+125. impact (n./v.) 影響；衝擊
+126. controversial (adj.) 有爭議的
+`;
+
+// ================= APP LOGIC =================
+
+// Global variables
+let categories = {};
+let currentQuizList = [];
+let currentQuestionIndex = 0;
+let score = 0;
+let mistakes = [];
+
+// 1. Initialize
+function init() {
+    parseData();
+}
+
+// 2. Parse the raw string data into a structured object
+function parseData() {
+    const lines = rawData.split('\n');
+    let currentCategory = "";
+
+    lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+
+        if (line.startsWith('###')) {
+            currentCategory = line.replace('###', '').trim();
+            categories[currentCategory] = [];
+        } else {
+            // Regex to parse: "1. word (pos) meaning" or "1. word meaning"
+            // Handles cases like "1. word (n.) meaning" or "1. word (v./n.) meaning"
+            const match = line.match(/^\d+\.\s+(.+?)\s+(\([a-zA-Z./;]+\.?\))\s+(.+)$/);
+            const simpleMatch = line.match(/^\d+\.\s+(.+?)\s+(.+)$/);
+
+            if (match && currentCategory) {
+                categories[currentCategory].push({
+                    word: match[1].trim(),
+                    pos: match[2].trim(),
+                    def: match[3].trim()
+                });
+            } else if (simpleMatch && currentCategory) {
+                 // Try to split POS from definition if inside parenthesis in simple match
+                 const part2 = simpleMatch[2];
+                 const posMatch = part2.match(/^(\(.*\))\s*(.*)/);
+                 if(posMatch) {
+                    categories[currentCategory].push({
+                        word: simpleMatch[1].trim(),
+                        pos: posMatch[1].trim(),
+                        def: posMatch[2].trim()
+                    });
+                 } else {
+                    categories[currentCategory].push({
+                        word: simpleMatch[1].trim(),
+                        pos: '',
+                        def: part2.trim()
+                    });
+                 }
+            }
+        }
+    });
+
+    renderMenu();
+}
+
+// 3. Render the checkbox menu
+function renderMenu() {
+    const menuList = document.getElementById('menu-list');
+    menuList.innerHTML = '';
+
+    Object.keys(categories).forEach(cat => {
+        const count = categories[cat].length;
+        
+        // Create checkbox container
+        const div = document.createElement('div');
+        
+        // Checkbox input
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = cat;
+        checkbox.value = cat;
+        checkbox.className = 'unit-checkbox';
+        checkbox.onchange = updateStartButton; // Update button text on change
+
+        // Label
+        const label = document.createElement('label');
+        label.htmlFor = cat;
+        label.className = 'unit-label';
+        label.innerHTML = `<span>${cat}</span> <span class="badge">${count} 字</span>`;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        menuList.appendChild(div);
+    });
+}
+
+// 4. Toggle Select All
+function toggleSelectAll() {
+    const checkboxes = document.querySelectorAll('.unit-checkbox');
+    // Check if all are currently checked
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+    updateStartButton();
+}
+
+// 5. Update Start Button Text
+function updateStartButton() {
+    const checkboxes = document.querySelectorAll('.unit-checkbox:checked');
+    let totalWords = 0;
+    checkboxes.forEach(cb => {
+        totalWords += categories[cb.value].length;
+    });
+
+    const btn = document.getElementById('start-btn');
+    btn.innerText = `開始測驗 (${totalWords} 字)`;
+    btn.disabled = totalWords === 0;
+    
+    // Change style slightly if active
+    if(totalWords > 0) {
+        btn.style.opacity = '1';
+        btn.style.transform = 'scale(1.02)';
+    } else {
+        btn.style.opacity = '0.7';
+        btn.style.transform = 'scale(1)';
+    }
+}
+
+// 6. Start Quiz Logic
+function startMixedQuiz() {
+    const checkboxes = document.querySelectorAll('.unit-checkbox:checked');
+    if (checkboxes.length === 0) return;
+
+    // Aggregate words
+    let combinedList = [];
+    checkboxes.forEach(cb => {
+        combinedList = combinedList.concat(categories[cb.value]);
+    });
+
+    // Shuffle if checked
+    if (document.getElementById('shuffle-check').checked) {
+        combinedList.sort(() => Math.random() - 0.5);
+    }
+
+    // Initialize Quiz State
+    currentQuizList = combinedList;
+    currentQuestionIndex = 0;
+    score = 0;
+    mistakes = [];
+
+    // Switch Views
+    document.getElementById('menu-view').style.display = 'none';
+    document.getElementById('start-bar').style.display = 'none';
+    document.getElementById('result-view').style.display = 'none';
+    document.getElementById('quiz-view').style.display = 'flex';
+    window.scrollTo(0,0);
+
+    loadQuestion();
+}
+
+// 7. Load Question
+function loadQuestion() {
+    if (currentQuestionIndex >= currentQuizList.length) {
+        showResult();
+        return;
+    }
+
+    const item = currentQuizList[currentQuestionIndex];
+    
+    // Update UI Status
+    document.getElementById('progress-text').innerText = `${currentQuestionIndex + 1} / ${currentQuizList.length}`;
+    document.getElementById('current-score').innerText = score;
+    
+    const percentage = ((currentQuestionIndex) / currentQuizList.length) * 100;
+    document.getElementById('progress-bar').style.width = `${percentage}%`;
+
+    // Set Question
+    document.getElementById('q-word').innerText = item.word;
+    document.getElementById('q-pos').innerText = item.pos;
+    document.getElementById('next-btn').style.display = 'none'; // Hide next button
+
+    // Generate Options
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+
+    // Logic for distractors: 
+    // Get 3 random wrong answers from the currentQuizList to ensure relevance
+    // If list is too small (<4), duplicates might happen (handled by logic or just ignored for small sets)
+    let distractors = currentQuizList.filter(x => x.word !== item.word);
+    
+    // Sort random
+    distractors.sort(() => Math.random() - 0.5);
+    
+    // Pick 3
+    let options = distractors.slice(0, 3);
+    options.push(item); // Add correct answer
+
+    // Shuffle options so correct answer isn't always last
+    options.sort(() => Math.random() - 0.5);
+
+    options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt.def;
+        btn.onclick = () => checkAnswer(btn, opt, item);
+        optionsContainer.appendChild(btn);
+    });
+}
+
+// 8. Check Answer
+function checkAnswer(btn, selected, correct) {
+    const allBtns = document.querySelectorAll('.option-btn');
+    
+    // Disable interaction
+    allBtns.forEach(b => b.disabled = true);
+
+    if (selected.word === correct.word) {
+        // Correct
+        btn.classList.add('correct');
+        score++;
+        document.getElementById('current-score').innerText = score;
+        
+        // Auto next
+        setTimeout(() => {
+            nextQuestion();
+        }, 600); // Faster transition for correct answers
+    } else {
+        // Wrong
+        btn.classList.add('wrong');
+        mistakes.push(correct); // Record mistake
+
+        // Reveal correct answer
+        allBtns.forEach(b => {
+            if (b.innerText === correct.def) {
+                b.classList.add('show-correct');
+            }
+        });
+
+        // Show Next Button manually
+        document.getElementById('next-btn').style.display = 'block';
+    }
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    loadQuestion();
+}
+
+// 9. Show Result
+function showResult() {
+    document.getElementById('quiz-view').style.display = 'none';
+    document.getElementById('result-view').style.display = 'block';
+
+    document.getElementById('final-score').innerText = score;
+
+    const mistakeArea = document.getElementById('mistake-area');
+    const mistakeItems = document.getElementById('mistake-items');
+    mistakeItems.innerHTML = '';
+
+    if (mistakes.length > 0) {
+        mistakeArea.style.display = 'block';
+        mistakes.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'mistake-item';
+            div.innerHTML = `
+                <div class="m-row">
+                    <span class="m-word">${m.word}</span>
+                    <span class="m-pos">${m.pos}</span>
+                </div>
+                <div class="m-def">${m.def}</div>
+            `;
+            // Add click to speak for review
+            div.onclick = () => speakText(m.word);
+            div.style.cursor = "pointer";
+            div.title = "點擊發音";
+            mistakeItems.appendChild(div);
+        });
+    } else {
+        mistakeArea.style.display = 'none';
+    }
+    window.scrollTo(0,0);
+}
+
+// 10. Navigation & Retry
+function initMenu() {
+    document.getElementById('menu-view').style.display = 'block';
+    document.getElementById('start-bar').style.display = 'flex';
+    document.getElementById('quiz-view').style.display = 'none';
+    document.getElementById('result-view').style.display = 'none';
+    updateStartButton();
+}
+
+function retryQuiz() {
+    // Reuse the same list but reshuffle if needed, and reset trackers
+    if (document.getElementById('shuffle-check').checked) {
+        currentQuizList.sort(() => Math.random() - 0.5);
+    }
+    currentQuestionIndex = 0;
+    score = 0;
+    mistakes = [];
+
+    document.getElementById('result-view').style.display = 'none';
+    document.getElementById('quiz-view').style.display = 'flex';
+    loadQuestion();
+}
+
+function confirmExit() {
+    if(confirm("確定要退出測驗嗎？進度將不會保存。")) {
+        initMenu();
+    }
+}
+
+// 11. TTS
+function speakCurrent() {
+    const word = document.getElementById('q-word').innerText;
+    speakText(word);
+}
+
+function speakText(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US'; 
+    window.speechSynthesis.speak(utterance);
+}
+
+// Run init
+window.onload = init;
+
+</script>
+
+</body>
+</html>
