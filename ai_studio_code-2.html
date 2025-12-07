@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高中生物重點複習：細胞、能量、分裂</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c7a7b;
+            --secondary: #e6fffa;
+            --accent: #e53e3e;
+            --text: #2d3748;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #2c5282;
+            border-left: 5px solid #4299e1;
+            padding-left: 10px;
+            margin-top: 40px;
+        }
+
+        h3 {
+            color: #2b6cb0;
+            margin-top: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ebf8ff;
+            color: #2c5282;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: bold;
+            background-color: #fff5f5;
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            margin-right: 5px;
+        }
+        .tag-blue { background-color: #4299e1; }
+        .tag-green { background-color: #48bb78; }
+        .tag-orange { background-color: #ed8936; }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .note-box {
+            background-color: #fffff0;
+            border-left: 4px solid #ecc94b;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            table { font-size: 0.85rem; }
+            th, td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🧬 高中生物重點複習整理</h1>
+    <p style="text-align:center; color:#718096;">整理自手寫筆記：細胞構造、能量代謝、細胞分裂</p>
+
+    <!-- 第一部分：細胞構造 -->
+    <div class="card">
+        <h2>一、細胞的構造與功能</h2>
+        <p>分類依據：<strong>膜的層數</strong> (考試重點)</p>
+
+        <h3>1. 雙層膜胞器 (4層磷脂質)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th width="20%">構造</th>
+                    <th>特徵與功能</th>
+                    <th width="25%">備註</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>細胞核</strong></td>
+                    <td>• 遺傳中心，含 DNA、蛋白質。<br>• <strong>核孔</strong>：控制物質進出。<br>• <strong>核仁</strong>：製造核糖體次單元。</td>
+                    <td>若無核則壽命短 (例：紅血球)</td>
+                </tr>
+                <tr>
+                    <td><strong>粒線體</strong></td>
+                    <td>• <strong>能量工廠</strong> (Powerhouse)。<br>• 進行<span class="highlight">有氧呼吸</span>產生 ATP。<br>• 內膜皺褶增加面積。</td>
+                    <td>半自主胞器 (含少量DNA)</td>
+                </tr>
+                <tr>
+                    <td><strong>葉綠體</strong></td>
+                    <td>• <strong>光合作用</strong>場所。<br>• 內含類囊體 (葉綠餅)。</td>
+                    <td>植物、藻類才有</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>2. 單層膜胞器 (內膜系統)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>構造</th>
+                    <th>功能關鍵字</th>
+                    <th>說明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>內質網 (ER)</strong></td>
+                    <td>運輸網</td>
+                    <td>• 粗糙型 (RER)：有核糖體，修飾<span class="highlight">蛋白質</span>。<br>• 平滑型 (SER)：合成<span class="highlight">脂質</span>、解毒。</td>
+                </tr>
+                <tr>
+                    <td><strong>高基氏體</strong></td>
+                    <td>郵局/加工廠</td>
+                    <td>• 修飾、包裝、分泌。<br>• 腺體細胞特別發達。</td>
+                </tr>
+                <tr>
+                    <td><strong>溶體</strong></td>
+                    <td>垃圾場</td>
+                    <td>• 含水解酶 (pH&lt;7)，分解老化胞器。<br>• 由高基氏體形成。</td>
+                </tr>
+                <tr>
+                    <td><strong>液泡</strong></td>
+                    <td>儲藏室</td>
+                    <td>• 植物大、動物小。<br>• 儲存水、養分，維持<span class="highlight">膨壓</span>。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="note-box">
+            <strong>⚠️ 無膜構造補充：</strong><br>
+            1. <strong>核糖體</strong>：合成蛋白質的場所 (RNA+蛋白質組成)。<br>
+            2. <strong>中心粒</strong>：動物細胞有 (9+0構造)，分裂時形成紡錘絲。
+        </div>
+    </div>
+
+    <!-- 第二部分：光合作用 -->
+    <div class="card">
+        <h2>二、光合作用 (Photosynthesis)</h2>
+        <p>總反應式：<span class="highlight">6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</span></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th width="15%">比較項目</th>
+                    <th width="42%">光反應 (Light Reaction)</th>
+                    <th width="43%">碳反應 (Calvin Cycle)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>場所</strong></td>
+                    <td>葉綠體的 <span class="highlight">類囊體 (Thylakoid)</span></td>
+                    <td>葉綠體的 <span class="highlight">基質 (Stroma)</span></td>
+                </tr>
+                <tr>
+                    <td><strong>需求</strong></td>
+                    <td>光、水、葉綠素</td>
+                    <td>ATP、NADPH、CO₂、酵素</td>
+                </tr>
+                <tr>
+                    <td><strong>關鍵過程</strong></td>
+                    <td>1. <strong>水分解</strong>：釋出 O₂、電子、H⁺。<br>2. 能量轉換：光能 → 化學能 (ATP, NADPH)。</td>
+                    <td>1. <strong>固碳</strong>：CO₂ 轉化為有機物。<br>2. 還原與再生：消耗 ATP 合成醣類。</td>
+                </tr>
+                <tr>
+                    <td><strong>產物</strong></td>
+                    <td><span class="tag tag-blue">O₂ (釋出)</span> <span class="tag tag-orange">ATP</span> <span class="tag tag-orange">NADPH</span></td>
+                    <td><span class="tag tag-green">葡萄糖</span> <span class="tag tag-blue">水</span> <span class="tag tag-green">ADP</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 第三部分：細胞週期圖表 -->
+    <div class="card">
+        <h2>三、細胞週期 (The Cell Cycle)</h2>
+        <p>將原本的圓餅圖優化，呈現各時期的比例與重點事件。</p>
+        
+        <div class="chart-container">
+            <canvas id="cellCycleChart"></canvas>
+        </div>
+        
+        <div class="note-box" style="margin-top: 20px;">
+            <strong>圖表解讀：</strong>
+            <ul>
+                <li><strong>G1 期</strong> (間期)：細胞生長，體積變大。</li>
+                <li><strong>S 期</strong> (間期)：<span class="highlight">DNA 複製</span> (含量 2a → 4a)，染色質複製。</li>
+                <li><strong>G2 期</strong> (間期)：合成蛋白質，準備分裂。</li>
+                <li><strong>M 期</strong> (分裂期)：包含有絲分裂 (核分裂) 與胞質分裂。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 第四部分：細胞分裂比較 -->
+    <div class="card">
+        <h2>四、有絲分裂 vs 減數分裂</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>項目</th>
+                    <th>有絲分裂 (Mitosis)</th>
+                    <th>減數分裂 (Meiosis)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>目的</strong></td>
+                    <td>生長、修補、無性生殖</td>
+                    <td>產生配子 (精/卵)、有性生殖</td>
+                </tr>
+                <tr>
+                    <td><strong>分裂次數</strong></td>
+                    <td>1 次</td>
+                    <td>2 次 (減數 I、減數 II)</td>
+                </tr>
+                <tr>
+                    <td><strong>子細胞</strong></td>
+                    <td>2 個 (雙套 2n)</td>
+                    <td>4 個 (單套 n)</td>
+                </tr>
+                <tr>
+                    <td><strong>同源染色體</strong></td>
+                    <td><span class="highlight">不聯會</span>、不分離</td>
+                    <td>會聯會 (四分體)、<span class="highlight">會分離</span> (發生在第一次分裂)</td>
+                </tr>
+                <tr>
+                    <td><strong>遺傳變異</strong></td>
+                    <td>無 (與母細胞相同)</td>
+                    <td>有 (基因重組/互換)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    // 細胞週期圖表設定
+    const ctx = document.getElementById('cellCycleChart').getContext('2d');
+    
+    const cellCycleChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['G1 期 (生長)', 'S 期 (DNA複製)', 'G2 期 (準備)', 'M 期 (分裂)'],
+            datasets: [{
+                label: '細胞週期',
+                data: [40, 30, 20, 10], // 大約的時間比例
+                backgroundColor: [
+                    '#4fd1c5', // G1 - Teal
+                    '#f6ad55', // S - Orange
+                    '#63b3ed', // G2 - Blue
+                    '#fc8181'  // M - Red
+                ],
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 14 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const labels = [
+                                '細胞體積增大，合成胞器',
+                                '關鍵！DNA 複製，染色體複製',
+                                '合成蛋白質，準備紡錘絲',
+                                '染色體分離，細胞一分為二'
+                            ];
+                            return ' 重點：' + labels[context.dataIndex];
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
