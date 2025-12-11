@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國中英語 B5 單字特訓</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 標題與導航 */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        .subtitle { color: #6b7280; font-size: 0.9rem; margin-top: 5px; }
+
+        /* 視圖切換 (隱藏/顯示) */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* 首頁選單按鈕 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .mode-section {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .mode-title { font-weight: bold; margin-bottom: 10px; color: #4b5563; }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button.secondary { background-color: #6b7280; }
+        button.outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
+        /* 單字卡列表樣式 */
+        .word-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .word-card {
+            background: #eff6ff;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #bfdbfe;
+            cursor: pointer;
+        }
+        .wc-en { font-weight: bold; font-size: 1.1rem; }
+        .wc-zh { font-size: 0.9rem; color: #555; }
+        .wc-tag { font-size: 0.7rem; color: var(--primary); margin-bottom: 2px;}
+
+        /* 測驗模式樣式 */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .question-card {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .q-word { font-size: 2rem; font-weight: bold; color: var(--text); margin-bottom: 5px; }
+        .q-part { font-size: 0.9rem; color: #9ca3af; font-style: italic; }
+
+        .speak-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .options-grid { display: grid; gap: 10px; }
+        
+        .option-btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            color: var(--text);
+            text-align: left;
+            padding: 15px;
+        }
+
+        .option-btn:hover { background: #f9fafb; border-color: #d1d5db; }
+        
+        .option-btn.correct { background: #d1fae5; border-color: var(--success); color: #065f46; }
+        .option-btn.wrong { background: #fee2e2; border-color: var(--error); color: #991b1b; }
+
+        /* 結果頁面 */
+        .result-score { font-size: 3rem; font-weight: bold; color: var(--primary); text-align: center; }
+        .result-msg { text-align: center; margin-bottom: 20px; color: #6b7280; }
+
+        .back-home { margin-top: 20px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>國中英語 B5 單字特訓</h1>
+        <div class="subtitle">翰林版 L5 ~ L6 總複習</div>
+    </header>
+
+    <!-- 1. 首頁選單 View -->
+    <div id="menu-view" class="view active">
+        <div class="menu-grid">
+            <div class="mode-section">
+                <div class="mode-title">📖 單字卡模式 (只看不考)</div>
+                <button onclick="startStudy('B5-L5')">第五課單字 (L5)</button>
+                <button onclick="startStudy('B5-L6')">第六課單字 (L6)</button>
+                <button onclick="startStudy('ALL')" class="secondary">全部單字</button>
+            </div>
+
+            <div class="mode-section">
+                <div class="mode-title">📝 測驗模式 (四選一)</div>
+                <button onclick="startQuiz('B5-L5')">測驗：第五課</button>
+                <button onclick="startQuiz('B5-L6')">測驗：第六課</button>
+                <button onclick="startQuiz('ALL')" class="secondary">測驗：全部混和</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 單字卡列表 View -->
+    <div id="study-view" class="view">
+        <button onclick="showMenu()" class="outline" style="margin-bottom:15px;">← 回選單</button>
+        <div id="study-list" class="word-list">
+            <!-- JS 會塞入單字卡 -->
+        </div>
+    </div>
+
+    <!-- 3. 測驗 View -->
+    <div id="quiz-view" class="view">
+        <div class="quiz-header">
+            <span id="quiz-progress">1 / 10</span>
+            <span id="quiz-score">Score: 0</span>
+        </div>
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+
+        <div class="question-card">
+            <div id="q-word" class="q-word">Word</div>
+            <button class="speak-btn" onclick="speakCurrent()">🔊</button>
+        </div>
+
+        <div id="options-container" class="options-grid">
+            <!-- JS 會塞入選項 -->
+        </div>
+
+        <button onclick="showMenu()" class="outline" style="margin-top:20px;">退出測驗</button>
+    </div>
+
+    <!-- 4. 結果 View -->
+    <div id="result-view" class="view">
+        <div class="result-score" id="final-score">100</div>
+        <div class="result-msg">測驗結束！</div>
+        <div id="wrong-list" class="word-list" style="margin-bottom:20px;"></div>
+        <button onclick="showMenu()" class="back-home">回首頁</button>
+    </div>
+
+</div>
+
+<script>
+    // ================= 資料庫 (JSON) =================
+    const wordData = [
+        // B5-L5
+        { t: "B5-L5", en: "arrive", zh: "抵達" },
+        { t: "B5-L5", en: "planet", zh: "行星" },
+        { t: "B5-L5", en: "appear", zh: "出現" },
+        { t: "B5-L5", en: "camera", zh: "相機" },
+        { t: "B5-L5", en: "restroom", zh: "洗手間" },
+        { t: "B5-L5", en: "bath", zh: "沐浴" },
+        { t: "B5-L5", en: "uniform", zh: "制服" },
+        { t: "B5-L5", en: "tail", zh: "尾巴" },
+        { t: "B5-L5", en: "bottom", zh: "臀部; 底部" },
+        { t: "B5-L5", en: "main", zh: "主要的" },
+        { t: "B5-L5", en: "notice", zh: "注意到" },
+        { t: "B5-L5", en: "belong", zh: "屬於" },
+        { t: "B5-L5", en: "square", zh: "正方形的" },
+        { t: "B5-L5", en: "string", zh: "串; 線" },
+        { t: "B5-L5", en: "round", zh: "圓形的" },
+        { t: "B5-L5", en: "dot", zh: "圓點" },
+        { t: "B5-L5", en: "bow", zh: "蝴蝶結" },
+        { t: "B5-L5", en: "pin", zh: "胸針" },
+        { t: "B5-L5", en: "neighbor", zh: "鄰居" },
+        { t: "B5-L5", en: "foreigner", zh: "外國人" },
+        { t: "B5-L5", en: "hobby", zh: "嗜好" },
+        { t: "B5-L5", en: "businessman", zh: "商人" },
+        { t: "B5-L5", en: "business", zh: "生意" },
+        { t: "B5-L5", en: "dictionary", zh: "字典" },
+        { t: "B5-L5", en: "workbook", zh: "作業本" },
+        { t: "B5-L5", en: "born", zh: "出生的" },
+        { t: "B5-L5", en: "be no stranger to", zh: "對...不陌生" },
+        { t: "B5-L5", en: "prize", zh: "獎" },
+        { t: "B5-L5", en: "topic", zh: "主題" },
+        { t: "B5-L5", en: "knowledge", zh: "知識" },
+        { t: "B5-L5", en: "public", zh: "公眾的" },
+        { t: "B5-L5", en: "go on", zh: "發生" },
+        { t: "B5-L5", en: "lead", zh: "通往" },
+        { t: "B5-L5", en: "play", zh: "扮演" },
+        { t: "B5-L5", en: "exercise", zh: "習題" },
+        { t: "B5-L5", en: "comic book convention", zh: "漫畫展" },
+        { t: "B5-L5", en: "booth", zh: "攤位" },
+        { t: "B5-L5", en: "character", zh: "角色" },
+        { t: "B5-L5", en: "hug", zh: "擁抱" },
+        { t: "B5-L5", en: "describe", zh: "描述" },
+        { t: "B5-L5", en: "noun", zh: "名詞" },
+        { t: "B5-L5", en: "pearl", zh: "珍珠" },
+        { t: "B5-L5", en: "cosplayer", zh: "角色扮演者" },
+
+        // B5-L6
+        { t: "B5-L6", en: "apartment", zh: "公寓" },
+        { t: "B5-L6", en: "glad", zh: "高興的" },
+        { t: "B5-L6", en: "town", zh: "小鎮" },
+        { t: "B5-L6", en: "polite", zh: "有禮貌的" },
+        { t: "B5-L6", en: "seat", zh: "座位" },
+        { t: "B5-L6", en: "beside", zh: "在…旁邊" },
+        { t: "B5-L6", en: "except", zh: "除了" },
+        { t: "B5-L6", en: "blank", zh: "空白的" },
+        { t: "B5-L6", en: "present", zh: "禮物" },
+        { t: "B5-L6", en: "invite", zh: "邀請" },
+        { t: "B5-L6", en: "perhaps", zh: "也許" },
+        { t: "B5-L6", en: "side", zh: "側面" },
+        { t: "B5-L6", en: "sidewalk", zh: "人行道" },
+        { t: "B5-L6", en: "blind", zh: "盲的" },
+        { t: "B5-L6", en: "April fool’s day", zh: "愚人節" },
+        { t: "B5-L6", en: "tape", zh: "用膠帶黏" },
+        { t: "B5-L6", en: "paper", zh: "紙" },
+        { t: "B5-L6", en: "joke", zh: "笑話" },
+        { t: "B5-L6", en: "visitor", zh: "遊客; 訪客" },
+        { t: "B5-L6", en: "somewhere", zh: "在某處" },
+        { t: "B5-L6", en: "mud", zh: "泥巴" },
+        { t: "B5-L6", en: "ahead", zh: "在前方" },
+        { t: "B5-L6", en: "heat", zh: "高溫; 加熱" },
+        { t: "B5-L6", en: "rise", zh: "升起" },
+        { t: "B5-L6", en: "lazy", zh: "懶惰" },
+        { t: "B5-L6", en: "have bigger fish to fry", zh: "有更重要的事要做" },
+        { t: "B5-L6", en: "smoke", zh: "煙霧; 抽菸" },
+        { t: "B5-L6", en: "cover", zh: "覆蓋" },
+        { t: "B5-L6", en: "used to", zh: "過去時常" },
+        { t: "B5-L6", en: "appear", zh: "似乎" },
+        { t: "B5-L6", en: "lie", zh: "躺" },
+        { t: "B5-L6", en: "draw", zh: "提取" },
+        { t: "B5-L6", en: "spell", zh: "咒語" },
+        { t: "B5-L6", en: "France", zh: "法國" },
+        { t: "B5-L6", en: "worthless", zh: "沒有價值的" },
+        { t: "B5-L6", en: "chat", zh: "聊天" },
+        { t: "B5-L6", en: "resist", zh: "抵抗" },
+        { t: "B5-L6", en: "Braille", zh: "盲人點字法" },
+        { t: "B5-L6", en: "the Louvre", zh: "羅浮宮" },
+        { t: "B5-L6", en: "complain", zh: "抱怨" },
+        { t: "B5-L6", en: "fairy", zh: "精靈; 仙子" },
+        { t: "B5-L6", en: "jewel", zh: "寶石" }
+    ];
+
+    // ================= 程式邏輯 (JavaScript) =================
+
+    // 變數
+    let currentQuizList = [];
+    let currentIndex = 0;
+    let score = 0;
+    let wrongAnswers = [];
+    let isAnswered = false;
+
+    // 1. 切換畫面
+    function switchView(viewId) {
+        document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+    }
+
+    function showMenu() {
+        switchView('menu-view');
+    }
+
+    // 2. 單字卡模式
+    function startStudy(tag) {
+        let list = wordData;
+        if (tag !== 'ALL') {
+            list = wordData.filter(item => item.t === tag);
+        }
+
+        const container = document.getElementById('study-list');
+        container.innerHTML = "";
+        
+        list.forEach(item => {
+            container.innerHTML += `
+                <div class="word-card" onclick="speakText('${item.en}')">
+                    <div class="wc-tag">${item.t}</div>
+                    <div class="wc-en">${item.en}</div>
+                    <div class="wc-zh">${item.zh}</div>
+                </div>
+            `;
+        });
+        switchView('study-view');
+    }
+
+    // 3. 測驗模式
+    function startQuiz(tag) {
+        // 篩選題目
+        if (tag === 'ALL') {
+            currentQuizList = [...wordData];
+        } else {
+            currentQuizList = wordData.filter(item => item.t === tag);
+        }
+        
+        // 洗牌
+        shuffle(currentQuizList);
+
+        // 初始化
+        currentIndex = 0;
+        score = 0;
+        wrongAnswers = [];
+        isAnswered = false;
+        
+        loadQuestion();
+        switchView('quiz-view');
+    }
+
+    function loadQuestion() {
+        if (currentIndex >= currentQuizList.length) {
+            showResult();
+            return;
+        }
+
+        isAnswered = false;
+        const q = currentQuizList[currentIndex];
+        
+        // 更新進度與分數
+        document.getElementById('quiz-progress').innerText = `${currentIndex + 1} / ${currentQuizList.length}`;
+        document.getElementById('quiz-score').innerText = `Score: ${score}`;
+        const pct = ((currentIndex) / currentQuizList.length) * 100;
+        document.getElementById('progress-fill').style.width = `${pct}%`;
+
+        // 顯示題目
+        document.getElementById('q-word').innerText = q.en;
+
+        // 產生選項 (1正解 + 3錯誤)
+        let options = [q];
+        let distractors = wordData.filter(x => x.en !== q.en); // 取得所有非正確答案
+        shuffle(distractors);
+        options.push(...distractors.slice(0, 3)); // 抓3個
+        shuffle(options); // 選項再洗牌
+
+        // 渲染按鈕
+        const optContainer = document.getElementById('options-container');
+        optContainer.innerHTML = "";
+        
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.zh;
+            btn.onclick = () => checkAnswer(opt, q, btn);
+            optContainer.appendChild(btn);
+        });
+        
+        // 自動發音
+        speakText(q.en);
+    }
+
+    function checkAnswer(selected, correct, btn) {
+        if (isAnswered) return; // 防止連點
+        isAnswered = true;
+
+        const allBtns = document.querySelectorAll('.option-btn');
+        
+        if (selected.en === correct.en) {
+            // 答對
+            score++;
+            btn.classList.add('correct');
+        } else {
+            // 答錯
+            btn.classList.add('wrong');
+            wrongAnswers.push(correct);
+            // 標示正確答案
+            allBtns.forEach(b => {
+                if (b.innerText === correct.zh) b.classList.add('correct');
+            });
+        }
+
+        // 延遲跳下一題
+        setTimeout(() => {
+            currentIndex++;
+            loadQuestion();
+        }, 1200);
+    }
+
+    function showResult() {
+        document.getElementById('final-score').innerText = score;
+        const wrongList = document.getElementById('wrong-list');
+        wrongList.innerHTML = "";
+        
+        if (wrongAnswers.length > 0) {
+            wrongList.innerHTML = "<h3>💡 需複習的單字：</h3>";
+            wrongAnswers.forEach(item => {
+                wrongList.innerHTML += `
+                    <div class="word-card" style="border-color:#fca5a5; background:#fef2f2;">
+                        <div class="wc-en">${item.en}</div>
+                        <div class="wc-zh">${item.zh}</div>
+                    </div>
+                `;
+            });
+        } else {
+            wrongList.innerHTML = "<h3>🎉 太強了！全部答對！</h3>";
+        }
+
+        switchView('result-view');
+    }
+
+    // 工具函式：洗牌 (Fisher-Yates)
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // 工具函式：發音
+    function speakCurrent() {
+        const word = document.getElementById('q-word').innerText;
+        speakText(word);
+    }
+
+    function speakText(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    }
+
+</script>
+
+</body>
+</html>
