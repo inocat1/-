@@ -520,11 +520,42 @@
     }
 
     function speakText(text) {
+        // 1. 停止之前的聲音
         window.speechSynthesis.cancel();
-        
+
+        // 2. 按鈕變色效果
+        const btn = document.getElementById('tts-btn');
+        if(btn) btn.classList.add('playing');
+
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.volume = 0.5;  
+        
+        // ================= 重點修改開始 =================
+        // LINE 瀏覽器有時候看不懂 .lang = 'en-US'
+        // 我們要手動去系統裡面把「英文語音包」抓出來塞給它
+        
+        let voices = window.speechSynthesis.getVoices();
+        
+        // 嘗試找到第一個是英文的聲音
+        let enVoice = voices.find(v => v.lang.includes('en'));
+        
+        // 如果有找到，就強制指定用這個聲音
+        if (enVoice) {
+            utterance.voice = enVoice;
+        }
+        
+        utterance.lang = 'en-US'; // 保險起見還是留著
+        // ================= 重點修改結束 =================
+
+        utterance.volume = 1;
+        utterance.rate = 0.8;
+
+        utterance.onend = function() {
+            if(btn) btn.classList.remove('playing');
+        };
+        utterance.onerror = function() {
+            if(btn) btn.classList.remove('playing');
+        };
+
         window.speechSynthesis.speak(utterance);
     }
 
