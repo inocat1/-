@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'SweiSpring';
+  src: url('https://cdn.jsdelivr.net/gh/max32002/swei-spring@1.068/WebFont/CJK%20TC/SweiSpringCJKtc-Medium.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/max32002/swei-spring@1.068/WebFont/CJK%20TC/SweiSpringCJKtc-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Songyun TC';
+  src: local('松韻 TC'), local('Songyun TC'), local('SongyunTC'), local('松韻');
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --bg-dark: #121316;
+    --bg-card: #181a1d;
+    --bg-card-subtle: #1e2025;
+    --mist-green: #3a443d;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-dark);
+    color: #e2e4e6;
+  }
+
+  h1, h2, h3, h4, .font-poetry, .font-serif-tc {
+    font-family: 'Noto Serif TC', 'Cormorant Garamond', serif;
+  }
+
+  .font-swei-spring {
+    font-family: 'SweiSpring', 'Noto Serif TC', serif;
+  }
+
+  .font-songyun {
+    font-family: '松韻 TC', 'Songyun TC', 'Songyun', 'SongYunTC', '松韻', 'SweiSpring', 'Noto Serif TC', serif;
+  }
+}
+
+/* Subtle Film Grain Overlay */
+.film-grain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Custom Scrollbar for subtle cinematic feeling */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #121316;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2d33;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3e434c;
+}
+
+/* Vignette mask */
+.vignette-radial {
+  background: radial-gradient(circle, rgba(18,19,22,0.1) 40%, rgba(18,19,22,0.85) 90%, rgba(18,19,22,0.98) 100%);
+}
+
+/* Slow breath pulse */
+@keyframes breath {
+  0%, 100% { opacity: 0.65; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.animate-breath {
+  animation: breath 14s ease-in-out infinite;
+}
+
+/* Mist drift animation */
+@keyframes drift {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(25px); }
+  100% { transform: translateX(0); }
+}
+
+.animate-drift {
+  animation: drift 20s ease-in-out infinite;
+}
+
+/* Desk Workbench Texture */
+.desk-surface {
+  background-color: #141518;
+  background-image: 
+    radial-gradient(ellipse at 50% 30%, rgba(35, 38, 44, 0.45) 0%, rgba(18, 19, 22, 0.95) 75%),
+    radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px;
+}
+
+/* Physical Photo Print Frame (攤在桌上的照片質感) */
+.photo-print {
+  background: #fbfbfb;
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.6),
+    0 8px 10px -6px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
+}
+
+.photo-print:hover {
+  transform: translateY(-8px) scale(1.03) rotate(0deg) !important;
+  box-shadow: 
+    0 25px 40px -10px rgba(0, 0, 0, 0.8),
+    0 16px 20px -8px rgba(0, 0, 0, 0.6);
+  z-index: 30;
+}
+
+/* Masking Tape effect */
+.masking-tape {
+  position: absolute;
+  width: 55px;
+  height: 18px;
+  background-color: rgba(220, 215, 200, 0.45);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  backdrop-filter: blur(1px);
+  pointer-events: none;
+  z-index: 10;
+}
+

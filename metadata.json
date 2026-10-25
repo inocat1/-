@@ -1,0 +1,6 @@
+{
+  "name": "芒草 (Silvergrass) — 平溪線鐵道視聽旅程",
+  "description": "極具詩意與電影質感的原創音樂與攝影互動體驗，循著台灣平溪線鐵路展開陰天、迷霧與心靈之境。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
