@@ -27,9 +27,7 @@ import {
   Layers,
   ArrowRight,
   Eye,
-  RotateCcw,
-  SkipBack,
-  SkipForward
+  RotateCcw
 } from 'lucide-react';
 
 // ============================================================================
@@ -1243,41 +1241,18 @@ export default function App() {
                   </p>
                 </div>
 
-                {/* Station & Playback Controls: Prev Station, Play/Pause, Next Station */}
-                <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-                  <button
-                    onClick={handlePrevStation}
-                    className="group px-3 py-2 rounded-full bg-stone-900/90 hover:bg-stone-800 text-stone-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md cursor-pointer"
-                    title={`上一站：${STATIONS_DATA[(currentStationIndex - 1 + STATIONS_DATA.length) % STATIONS_DATA.length].name}`}
-                    aria-label="上一站"
-                  >
-                    <SkipBack className="w-4 h-4 stroke-[2]" />
-                    <span className="hidden sm:inline text-xs font-poetry tracking-wider">上一站</span>
-                  </button>
-
-                  <button
-                    onClick={togglePlay}
-                    className="w-12 h-12 rounded-full bg-stone-200 text-stone-900 hover:bg-white flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-105 active:scale-95 shrink-0 cursor-pointer"
-                    title={isPlaying ? '暫停' : '播放'}
-                    aria-label={isPlaying ? '暫停' : '播放'}
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-5 h-5 stroke-[2] fill-stone-900" />
-                    ) : (
-                      <Play className="w-5 h-5 stroke-[2] fill-stone-900 ml-0.5" />
-                    )}
-                  </button>
-
-                  <button
-                    onClick={handleNextStation}
-                    className="group px-3 py-2 rounded-full bg-stone-900/90 hover:bg-stone-800 text-stone-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md cursor-pointer"
-                    title={`下一站：${STATIONS_DATA[(currentStationIndex + 1) % STATIONS_DATA.length].name}`}
-                    aria-label="下一站"
-                  >
-                    <span className="hidden sm:inline text-xs font-poetry tracking-wider">下一站</span>
-                    <SkipForward className="w-4 h-4 stroke-[2]" />
-                  </button>
-                </div>
+                {/* Primary Play/Pause Button */}
+                <button
+                  onClick={togglePlay}
+                  className="w-12 h-12 rounded-full bg-stone-200 text-stone-900 hover:bg-white flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-105 active:scale-95 shrink-0"
+                  title={isPlaying ? '暫停' : '播放'}
+                >
+                  {isPlaying ? (
+                    <Pause className="w-5 h-5 stroke-[2] fill-stone-900" />
+                  ) : (
+                    <Play className="w-5 h-5 stroke-[2] fill-stone-900 ml-0.5" />
+                  )}
+                </button>
               </div>
 
               {/* Center: Scrubber */}
